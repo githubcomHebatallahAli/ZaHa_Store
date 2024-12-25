@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\PhoneNumberExistsInTablesRule;
+use App\Rules\EmailExistsInUsersOrAdminsRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -25,7 +26,7 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phoNum' => ['required','phoNum',new PhoneNumberExistsInTablesRule()],
+            'email' => ['required','email',new EmailExistsInUsersOrAdminsRule()],
             'otp' =>['required','max:6'],
             'password' =>['required','min:6']
         ];

@@ -21,34 +21,27 @@ class ResetPasswordController extends Controller
 
     public function resetPassword(ResetPasswordRequest $request){
 
-        $otp2 = $this->otp->validate($request->phoNum, $request->otp);
+        $otp2 = $this->otp->validate($request->email, $request->otp);
         if (!$otp2->status) {
             return response()->json(['error' => $otp2], 401);
         }
 
-
-        $user = User::where('phoNum', $request->phoNum)->first();
+        $user = User::where('email', $request->email)->first();
         if ($user) {
-
             $user->update(['password' => Hash::make($request->password)]);
         } else {
-            $admin = Admin::where('phoNum', $request->phoNum)->first();
-            if ($admin) {
 
+            $admin = Admin::where('email', $request->email)->first();
+            if ($admin) {
                 $admin->update(['password' => Hash::make($request->password)]);
             } else {
-                $broker = Broker::where('phoNum', $request->phoNum)->first();
-                if ($broker) {
-
-                    $broker->update(['password' => Hash::make($request->password)]);
-                } else {
-                    return response()->json(['error' => 'User, Admin, or Broker not found.'], 404);
-                }
+                return response()->json(['error' => 'User or Admin not found.'], 404);
             }
         }
 
         return response()->json([
-            'message' => "The password reset successfully."
+            'message' => "The password has been reset successfully."
         ]);
     }
+
 }

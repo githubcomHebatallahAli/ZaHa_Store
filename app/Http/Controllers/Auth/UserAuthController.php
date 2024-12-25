@@ -46,7 +46,6 @@ class UserAuthController extends Controller
 
 
 
-
     public function register(UserRegisterRequest $request) {
         $validator = Validator::make($request->all(), $request->rules());
 
