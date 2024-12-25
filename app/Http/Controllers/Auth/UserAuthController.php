@@ -31,12 +31,6 @@ class UserAuthController extends Controller
 
         $user = auth()->guard('api')->user();
 
-        if (!$user->is_verified) {
-            return response()->json([
-                'message' => 'Your account is not verified. Please verify your phone number.'
-            ], 403);
-        }
-
         if ($user->ip !== $request->ip()) {
             $user->ip = $request->ip();
             $user->save();
@@ -128,8 +122,6 @@ class UserAuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->guard('api')->factory()->getTTL() * 60,
             'user' => auth()->guard('api')->user(),
-
-
 
         ]);
     }
