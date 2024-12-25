@@ -24,12 +24,11 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'email' => 'nullable|email|exists:users,email',
-            'phoNum'  => 'required|string',
+
+            'email'  => 'required|email',
             'password' => 'required|string|max:255',
 
-            // 'email' => 'required_without:phoNum', 
-            // 'phoNum' => 'required_without:email',
+
         ];
     }
 
