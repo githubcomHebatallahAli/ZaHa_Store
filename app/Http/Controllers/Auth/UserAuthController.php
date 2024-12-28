@@ -44,8 +44,6 @@ class UserAuthController extends Controller
     }
 
 
-
-
     public function register(UserRegisterRequest $request) {
         $validator = Validator::make($request->all(), $request->rules());
 
@@ -69,7 +67,7 @@ class UserAuthController extends Controller
         $user->load('image');
 
         return response()->json([
-            'message' => 'User registration successful. Please verify your phone number.',
+            'message' => 'User registration successful.',
             'user' => new UserRegisterResource($user),
 
         ], 201);
