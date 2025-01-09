@@ -27,9 +27,9 @@ class ShipmentRequest extends FormRequest
              'supplierName' => 'required|string',
              'importer' => 'required|string',
              'place' => 'required|string',
-             'totalProductNum' => 'required|integer',
-             'totalPrice' => 'required|integer',
-             'description' => 'required|string',
+             'shipmentProductNum' => 'required|integer',
+             'totalPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+             'description' => 'nullable|string',
              'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
         ];
     }

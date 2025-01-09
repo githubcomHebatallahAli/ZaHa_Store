@@ -27,14 +27,20 @@ class ProductController extends Controller
     public function create(ProductRequest $request)
     {
         $this->authorize('manage_users');
+        $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
+        $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
+        $profit = $formattedSellingPrice - $formattedPurchesPrice;
            $Product =Product::create ([
                 "category_id" => $request->category_id,
                 "shipment_id" => $request->shipment_id,
                 "name" => $request->name,
                 "productNum" => $request->productNum,
-                "sellingPrice" => $request->sellingPrice,
-                "purchesPrice" => $request->purchesPrice,
-                "profit" => $request->profit,
+                "quantity" => $request->quantity,
+                "sellingPrice" => $formattedSellingPrice,
+                "purchesPrice" =>  $formattedPurchesPrice,
+                "profit" => $profit,
+                'creationDate' => now()->timezone('Africa/Cairo')
+                ->format('Y-m-d h:i:s'),
             ]);
            $Product->save();
            return response()->json([
@@ -63,6 +69,9 @@ class ProductController extends Controller
         public function update(ProductRequest $request, string $id)
         {
             $this->authorize('manage_users');
+            $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
+            $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
+            $profit = $formattedSellingPrice - $formattedPurchesPrice;
            $Product =Product::findOrFail($id);
 
            if (!$Product) {
@@ -75,12 +84,16 @@ class ProductController extends Controller
                 "shipment_id" => $request->shipment_id,
                 "name" => $request->name,
                 "productNum" => $request->productNum,
-                "sellingPrice" => $request->sellingPrice,
-                "purchesPrice" => $request->purchesPrice,
-                "profit" => $request->profit,
+                "quantity" => $request->quantity,
+                "sellingPrice" => $formattedSellingPrice,
+                "purchesPrice" => $formattedPurchesPrice,
+                "profit" =>  $profit,
+                'creationDate' => now()->timezone('Africa/Cairo')
+                ->format('Y-m-d h:i:s'),
+                // 'creationDate'=> $request->creationDate,
             ]);
 
-           $Product->save();
+        //    $Product->save();
            return response()->json([
             'data' =>new ProductResource($Product),
             'message' => " Update Product By Id Successfully."

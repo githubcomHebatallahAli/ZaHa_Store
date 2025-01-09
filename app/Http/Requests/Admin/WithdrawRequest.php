@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class ProductRequest extends FormRequest
+class WithdrawRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,11 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|exists:categories,id',
-            'shipment_id' => 'required|exists:shipments,id',
-            'name' => 'required|string',
-            'productNum' => 'required|integer',
-            'quantity' => 'required|integer',
-            'sellingPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'purchesPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'profit' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'personName' =>'required|string',
+            'totalAmount' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'withdrawnAmount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'remainingAmount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'description' =>'required|string',
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
         ];
     }

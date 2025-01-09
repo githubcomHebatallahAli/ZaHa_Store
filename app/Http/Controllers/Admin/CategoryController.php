@@ -52,7 +52,7 @@ class CategoryController extends Controller
 
             return response()->json([
                 'data' => new CategoryProductResource($category),
-                'message' => "Edit Category  With product By ID Successfully."
+                'message' => "Edit Category With product By ID Successfully."
             ]);
         }
 
@@ -82,15 +82,29 @@ class CategoryController extends Controller
     return $this->destroyModel(Category::class, CategoryResource::class, $id);
     }
 
-        public function showDeleted(){
-
-        return $this->showDeletedModels(Category::class, CategoryResource::class);
+    public function showDeleted(){
+        $this->authorize('manage_users');
+    $Categorys=Category::onlyTrashed()->get();
+    return response()->json([
+        'data' =>CategoryResource::collection($Categorys),
+        'message' => "Show Deleted Categorys Successfully."
+    ]);
     }
 
     public function restore(string $id)
     {
-
-        return $this->restoreModel(Category::class, $id);
+       $this->authorize('manage_users');
+    $Category = Category::withTrashed()->where('id', $id)->first();
+    if (!$Category) {
+        return response()->json([
+            'message' => "Category not found."
+        ], 404);
+    }
+    $Category->restore();
+    return response()->json([
+        'data' =>new CategoryResource($Category),
+        'message' => "Restore Category By Id Successfully."
+    ]);
     }
 
     public function forceDelete(string $id){

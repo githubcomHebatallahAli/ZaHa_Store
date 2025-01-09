@@ -26,12 +26,24 @@ class Category extends Model
             $category->save();
         });
 
+        // static::deleted(function ($category) {
+        //     if (!$category->trashed()) {
+        //         $category->productsCount = $category->products()->count();
+        //         $category->save();
+        //     }
+        // });
+
         static::deleted(function ($category) {
+            if (method_exists($category, 'isForceDeleting') && $category->isForceDeleting()) {
+                return;
+            }
+
             if (!$category->trashed()) {
                 $category->productsCount = $category->products()->count();
                 $category->save();
             }
         });
+
     }
 
 

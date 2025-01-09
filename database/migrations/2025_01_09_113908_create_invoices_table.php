@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shipments', function (Blueprint $table) {
+        Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('supplierName');
-            $table->string('importer');
-            $table->string('place');
-            $table->integer('shipmentProductNum');
-            $table->decimal('totalPrice');
-            $table->text('description')->nullable();
+            $table->string('customerName');
+            $table->string('sellerName');
             $table->timestamp('creationDate')->nullable();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->integer('invoiceProductNum')->nullable();
+            $table->decimal('invoicePrice');
+            $table->decimal('discount')->nullable();
+            $table->decimal('invoiceAfterDiscount')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shipments');
+        Schema::dropIfExists('invoices');
     }
 };

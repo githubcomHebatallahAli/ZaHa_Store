@@ -9,6 +9,9 @@ require __DIR__ . '/Apis/Admin/contact.php';
 require __DIR__ . '/Apis/Admin/category.php';
 require __DIR__ . '/Apis/Admin/product.php';
 require __DIR__ . '/Apis/Admin/shipment.php';
+require __DIR__ . '/Apis/Admin/invoice.php';
+require __DIR__ . '/Apis/Admin/withdraw.php';
 require __DIR__ . '/Apis/User/contact.php';
+require __DIR__ . '/Apis/User/product.php';
 
 

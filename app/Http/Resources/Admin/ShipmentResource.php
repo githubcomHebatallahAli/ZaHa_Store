@@ -19,7 +19,7 @@ class ShipmentResource extends JsonResource
             'supplierName' => $this -> supplierName,
             'importer' => $this -> importer ,
             'place' => $this -> place,
-            'totalProductNum' => $this -> totalProductNum,
+            'shipmentProductNum' => $this -> shipmentProductNum,
             'totalPrice' => $this -> totalPrice,
             'description' => $this -> description,
             'creationDate' => $this -> creationDate,

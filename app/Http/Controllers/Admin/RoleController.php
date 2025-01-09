@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Role;
-use Illuminate\Http\Request;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleRequest;
@@ -85,13 +84,15 @@ class RoleController extends Controller
       return $this->destroyModel(Role::class, RoleResource::class, $id);
   }
 
-  public function showDeleted(){
+  public function showDeleted()
+  {
     $this->authorize('manage_users');
 $Roles=Role::onlyTrashed()->get();
 return response()->json([
     'data' =>RoleResource::collection($Roles),
     'message' => "Show Deleted Roles Successfully."
 ]);
+
 }
 
 public function restore(string $id)

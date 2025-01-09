@@ -17,9 +17,12 @@ return new class extends Migration
             $table->foreignId('shipment_id')->nullable()->constrained('shipments')->onDelete('cascade');
             $table->string('name');
             $table->integer('productNum');
+            $table->integer('quantity');
             $table->decimal('sellingPrice');
-            $table->decimal('purchasePrice');
+            $table->decimal('purchesPrice');
             $table->decimal('profit');
+            $table->decimal('totalPrice')->nullable();
+            $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

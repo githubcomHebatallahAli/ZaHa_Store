@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Shipment;
 use Illuminate\Http\Request;
+use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ShipmentRequest;
 use App\Http\Resources\Admin\ShipmentResource;
 
 class ShipmentController extends Controller
 {
+    use ManagesModelsTrait;
     public function showAll()
     {
         $this->authorize('manage_users');
@@ -25,12 +27,13 @@ class ShipmentController extends Controller
     public function create(ShipmentRequest $request)
     {
         $this->authorize('manage_users');
+        $formattedPrice = number_format($request->totalPrice, 2, '.', '');
            $Shipment =Shipment::create ([
                 "supplierName" => $request->supplierName,
                 "importer" => $request->importer,
                 "place" => $request->place,
-                "totalProductName" => $request->totalProductName,
-                "totalPrice" => $request->totalPrice,
+                "shipmentProductNum" => $request->shipmentProductNum,
+                "totalPrice" => $formattedPrice,
                 "description" => $request->description,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
@@ -63,6 +66,7 @@ class ShipmentController extends Controller
         public function update(ShipmentRequest $request, string $id)
         {
             $this->authorize('manage_users');
+            $formattedPrice = number_format($request->totalPrice, 2, '.', '');
            $Shipment =Shipment::findOrFail($id);
 
            if (!$Shipment) {
@@ -74,8 +78,8 @@ class ShipmentController extends Controller
             "supplierName" => $request->supplierName,
             "importer" => $request->importer,
             "place" => $request->place,
-            "totalProductName" => $request->totalProductName,
-            "totalPrice" => $request->totalPrice,
+            "shipmentProductNum" => $request->shipmentProductNum,
+            "totalPrice" =>  $formattedPrice,
             "description" => $request->description,
             'creationDate' => $request->creationDate
             ]);
@@ -92,15 +96,29 @@ class ShipmentController extends Controller
     return $this->destroyModel(Shipment::class, ShipmentResource::class, $id);
     }
 
-        public function showDeleted(){
-
-        return $this->showDeletedModels(Shipment::class, ShipmentResource::class);
+    public function showDeleted(){
+        $this->authorize('manage_users');
+    $Shipments=Shipment::onlyTrashed()->get();
+    return response()->json([
+        'data' =>ShipmentResource::collection($Shipments),
+        'message' => "Show Deleted Shipments Successfully."
+    ]);
     }
 
     public function restore(string $id)
     {
-
-        return $this->restoreModel(Shipment::class, $id);
+       $this->authorize('manage_users');
+    $Shipment = Shipment::withTrashed()->where('id', $id)->first();
+    if (!$Shipment) {
+        return response()->json([
+            'message' => "Shipment not found."
+        ], 404);
+    }
+    $Shipment->restore();
+    return response()->json([
+        'data' =>new ShipmentResource($Shipment),
+        'message' => "Restore Shipment By Id Successfully."
+    ]);
     }
 
     public function forceDelete(string $id){

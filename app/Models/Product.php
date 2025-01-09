@@ -14,19 +14,21 @@ class Product extends Model
         'shipment_id',
         'name',
         'productNum',
+        'quantity',
         'sellingPrice',
         'purchesPrice',
         'profit',
+        'creationDate',
     ];
 
     protected static function boote()
     {
-        static::created(function ($news) {
-            $news->category->increment('productsCount');
+        static::created(function ($products) {
+            $products->category->increment('productsCount');
         });
 
-        static::deleted(function ($news) {
-            $news->category->decrement('productsCount');
+        static::deleted(function ($products) {
+            $products->category->decrement('productsCount');
         });
     }
 
@@ -43,6 +45,11 @@ class Product extends Model
     public function shipment()
     {
         return $this->belongsTo(Shipment::class);
+    }
+
+    public function invoice()
+    {
+        return $this->hasMany(Invoice::class);
     }
 
 }
