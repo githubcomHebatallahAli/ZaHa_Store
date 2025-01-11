@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('supplierName');
             $table->string('importer');
             $table->string('place');
-            $table->integer('shipmentProductNum');
-            $table->decimal('totalPrice');
-            $table->text('description')->nullable();
+            $table->unsignedBigInteger('shipmentProductsCount')->default(0);
+            $table->decimal('totalPrice', 15, 2)->default(0);
             $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();

@@ -25,14 +25,12 @@ class ProductRequest extends FormRequest
     {
         return [
             'category_id' => 'required|exists:categories,id',
-            'shipment_id' => 'required|exists:shipments,id',
             'name' => 'required|string',
-            'productNum' => 'required|integer',
-            'quantity' => 'required|integer',
             'sellingPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'purchesPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'profit' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            // 'profit' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
+            'image.*'=>'nullable|image|mimes:jpg,jpeg,png,gif,svg',
         ];
     }
 

@@ -14,14 +14,11 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
-            $table->foreignId('shipment_id')->nullable()->constrained('shipments')->onDelete('cascade');
             $table->string('name');
-            $table->integer('productNum');
-            $table->integer('quantity');
             $table->decimal('sellingPrice');
             $table->decimal('purchesPrice');
             $table->decimal('profit');
-            $table->decimal('totalPrice')->nullable();
+            $table->String('image')->nullable();
             $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();

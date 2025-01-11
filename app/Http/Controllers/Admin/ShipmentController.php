@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Product;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use App\Traits\ManagesModelsTrait;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ShipmentRequest;
 use App\Http\Resources\Admin\ShipmentResource;
+use App\Http\Resources\Admin\ShipmentProductResource;
 
 class ShipmentController extends Controller
 {
@@ -16,7 +19,7 @@ class ShipmentController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Shipment = Shipment::get();
+        $Shipment = Shipment::paginate(10);
 
                   return response()->json([
                       'data' =>  ShipmentResource::collection($Shipment),
@@ -27,20 +30,33 @@ class ShipmentController extends Controller
     public function create(ShipmentRequest $request)
     {
         $this->authorize('manage_users');
-        $formattedPrice = number_format($request->totalPrice, 2, '.', '');
+
            $Shipment =Shipment::create ([
                 "supplierName" => $request->supplierName,
                 "importer" => $request->importer,
                 "place" => $request->place,
-                "shipmentProductNum" => $request->shipmentProductNum,
-                "totalPrice" => $formattedPrice,
-                "description" => $request->description,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
             ]);
+
+            if ($request->has('products')) {
+
+                foreach ($request->products as $product) {
+                    $Shipment->products()->syncWithoutDetaching([
+                        $product['id'] => [
+                            'quantity' => $product['quantity'],
+                            'price' => $product['price']
+                        ]
+                    ]);
+                }
+            }
+            $Shipment->updateShipmentProductsCount();
+
+            $Shipment->totalPrice = $Shipment->calculateTotalPrice();
+
            $Shipment->save();
            return response()->json([
-            'data' =>new ShipmentResource($Shipment),
+            'data' =>new ShipmentProductResource($Shipment),
             'message' => "Shipment Created Successfully."
         ]);
         }
@@ -48,7 +64,7 @@ class ShipmentController extends Controller
         public function edit(string $id)
         {
             $this->authorize('manage_users');
-  $Shipment = Shipment::find($id);
+            $Shipment = Shipment::find($id);
 
 
             if (!$Shipment) {
@@ -58,7 +74,7 @@ class ShipmentController extends Controller
             }
 
             return response()->json([
-                'data' => new ShipmentResource($Shipment),
+                'data' => new ShipmentProductResource($Shipment),
                 'message' => "Edit Shipment By ID Successfully."
             ]);
         }
@@ -66,7 +82,7 @@ class ShipmentController extends Controller
         public function update(ShipmentRequest $request, string $id)
         {
             $this->authorize('manage_users');
-            $formattedPrice = number_format($request->totalPrice, 2, '.', '');
+
            $Shipment =Shipment::findOrFail($id);
 
            if (!$Shipment) {
@@ -78,29 +94,43 @@ class ShipmentController extends Controller
             "supplierName" => $request->supplierName,
             "importer" => $request->importer,
             "place" => $request->place,
-            "shipmentProductNum" => $request->shipmentProductNum,
-            "totalPrice" =>  $formattedPrice,
-            "description" => $request->description,
-            'creationDate' => $request->creationDate
+            'creationDate' => now()->timezone('Africa/Cairo')
+            ->format('Y-m-d h:i:s'),
             ]);
+
+            if ($request->has('products')) {
+                $products = [];
+                foreach ($request->products as $product) {
+                    $products[$product['id']] = [
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                    ];
+                }
+
+                $Shipment->products()->sync($products);
+            }
+
+            $Shipment->updateShipmentProductsCount();
+
+            $Shipment->totalPrice = $Shipment->calculateTotalPrice();
 
            $Shipment->save();
            return response()->json([
-            'data' =>new ShipmentResource($Shipment),
+            'data' =>new ShipmentProductResource($Shipment),
             'message' => " Update Shipment By Id Successfully."
         ]);
     }
 
     public function destroy(string $id){
 
-    return $this->destroyModel(Shipment::class, ShipmentResource::class, $id);
+    return $this->destroyModel(Shipment::class, ShipmentProductResource::class, $id);
     }
 
     public function showDeleted(){
         $this->authorize('manage_users');
     $Shipments=Shipment::onlyTrashed()->get();
     return response()->json([
-        'data' =>ShipmentResource::collection($Shipments),
+        'data' =>ShipmentProductResource::collection($Shipments),
         'message' => "Show Deleted Shipments Successfully."
     ]);
     }
@@ -116,7 +146,7 @@ class ShipmentController extends Controller
     }
     $Shipment->restore();
     return response()->json([
-        'data' =>new ShipmentResource($Shipment),
+        'data' =>new ShipmentProductResource($Shipment),
         'message' => "Restore Shipment By Id Successfully."
     ]);
     }

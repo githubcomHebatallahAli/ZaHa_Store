@@ -17,11 +17,7 @@ class ShipmentResource extends JsonResource
         return [
             "id" => $this -> id,
             'supplierName' => $this -> supplierName,
-            'importer' => $this -> importer ,
             'place' => $this -> place,
-            'shipmentProductNum' => $this -> shipmentProductNum,
-            'totalPrice' => $this -> totalPrice,
-            'description' => $this -> description,
             'creationDate' => $this -> creationDate,
         ];
     }

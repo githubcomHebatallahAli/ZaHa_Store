@@ -14,25 +14,81 @@ class Shipment extends Model
         'supplierName',
         'importer',
         'place',
-        'shipmentProductNum',
-        'totalPrice',
-        'description',
-        'creationDate'
+        'creationDate',
+        'shipmentProductsCount'
     ];
 
 
-    protected $date = ['creationDate'];
-
+    protected $dates = ['creationDate'];
 
     public function getFormattedCreationDateAttribute()
     {
         return Carbon::parse($this->creationDate)
-        ->timezone('Africa/Cairo')
-        ->format('Y-m-d h:i:s');
+            ->timezone('Africa/Cairo')
+            ->format('Y-m-d h:i:s');
     }
 
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsToMany(Product::class, 'shipment_products')
+            ->withPivot('quantity', 'price');
     }
+
+
+    protected static function booted()
+    {
+        static::created(function ($shipment) {
+            $shipment->updateShipmentProductsCount();
+        });
+
+        static::deleted(function ($shipment) {
+            if (method_exists($shipment, 'isForceDeleting') && $shipment->isForceDeleting()) {
+                return;
+            }
+
+            if (!$shipment->trashed()) {
+                $shipment->updateShipmentProductsCount();
+            }
+        });
+
+static::saving(function ($shipment) {
+    $shipment->load('products');
+    $shipment->totalPrice = $shipment->calculateTotalPrice();
+});
+
+
+    }
+
+    public function updateShipmentProductsCount()
+    {
+        $this->shipmentProductsCount = $this->products()->whereNull('deleted_at')->count();
+        $this->saveQuietly();
+    }
+
+    public function getShipmentProductsCountAttribute()
+    {
+        return $this->attributes['shipmentProductsCount'] ?? 0;
+    }
+
+// public function calculateTotalPrice()
+// {
+//     $this->load('products');
+//     return $this->products->sum(function ($product) {
+//         return $product->pivot->quantity * $product->pivot->price;
+//     });
+// }
+
+public function calculateTotalPrice()
+{
+    $this->load('products');
+    return $this->products->sum(function ($product) {
+        return $product->pivot->price;
+    });
+}
+
+
+
+
+
+
 }

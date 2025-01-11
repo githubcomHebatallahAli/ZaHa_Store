@@ -9,16 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
+    const storageFolder= 'Products';
     protected $fillable = [
         'category_id',
-        'shipment_id',
         'name',
-        'productNum',
-        'quantity',
         'sellingPrice',
         'purchesPrice',
         'profit',
-        'creationDate',
+        'image'
     ];
 
     protected static function boote()
@@ -32,19 +30,20 @@ class Product extends Model
         });
     }
 
-    public function image()
-    {
-        return $this->morphOne(Image::class, 'imageable');
-    }
-
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function shipment()
+    // public function shipment()
+    // {
+    //     return $this->belongsTo(Shipment::class);
+    // }
+
+    public function shipments()
     {
-        return $this->belongsTo(Shipment::class);
+        return $this->belongsToMany(Shipment::class, 'shipment_products')
+        ->withPivot('quantity', 'price');
     }
 
     public function invoice()

@@ -3,10 +3,9 @@
 namespace App\Http\Resources\Admin;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\ImageResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource
+class ShowAllProductResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,12 +17,17 @@ class ProductResource extends JsonResource
         return [
             "id" => $this -> id,
             "name" => $this -> name ,
+            // "productNum" => $this -> productNum,
+            "quantity" => $this -> quantity,
             "sellingPrice" => $this -> sellingPrice,
             "purchesPrice" => $this -> purchesPrice,
-            "profit" => $this -> profit,
+            // 'totalPrice' => $this -> totalPrice,
+            // "profit" => $this -> profit,
+            'category' => new CategoryResource($this->category),
+            // 'shipment' => new ShipmentResource($this->shipment),
+            'shipment_id' => $this->shipment->id,
             'image' => $this -> image,
             'creationDate' => $this -> creationDate,
-            'category' => new CategoryResource($this->category),
 
         ];
     }

@@ -8,5 +8,5 @@ use App\Http\Controllers\User\HomeController;
 
 Route::controller(HomeController::class)->group(
     function () {
-        Route::post('/showAll/product', 'showAllProduct');
+        Route::get('/showAll/product', 'showAllProduct');
     });
