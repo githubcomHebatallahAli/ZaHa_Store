@@ -23,13 +23,14 @@ class InvoiceRequest extends FormRequest
     {
         return [
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
-            'product_id' => 'required|exists:products,id',
             'customerName' => 'required|string',
             'sellerName' => 'required|string',
-            'invoiceProductNum'=> 'nullable|integer',
-            'invoicePrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'discount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'invoiceAfterDiscount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'products' => 'required|array',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+            // 'discount' => 'nullable|numeric|min:0',
+
 
         ];
     }

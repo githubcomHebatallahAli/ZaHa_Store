@@ -35,10 +35,7 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // public function shipment()
-    // {
-    //     return $this->belongsTo(Shipment::class);
-    // }
+
 
     public function shipments()
     {
@@ -46,9 +43,10 @@ class Product extends Model
         ->withPivot('quantity', 'price');
     }
 
-    public function invoice()
+    public function invoices()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->belongsToMany(Invoice::class ,'invoice_products' )
+        ->withPivot('quantity','total');
     }
 
 }

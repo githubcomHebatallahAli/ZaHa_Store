@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,9 +13,11 @@ class Withdraw extends Model
     protected $fillable = [
         'personName',
         'creationDate',
-        'totalAmount',
+        'availableWithdrawal',
         'withdrawnAmount',
         'remainingAmount',
         'description',
     ];
+
+  
 }

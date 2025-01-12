@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('personName');
             $table->timestamp('creationDate')->nullable();
-            $table->decimal('totalAmount');
+            $table->decimal('availableWithdrawal')->nullable();
             $table->decimal('withdrawnAmount');
-            $table->decimal('remainingAmount');
+            $table->decimal('remainingAmount')->nullable();
             $table->text('description');
             $table->softDeletes();
             $table->timestamps();

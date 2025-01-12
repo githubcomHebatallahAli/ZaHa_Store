@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('customerName');
             $table->string('sellerName');
             $table->timestamp('creationDate')->nullable();
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
-            $table->integer('invoiceProductNum')->nullable();
-            $table->decimal('invoicePrice');
+            $table->unsignedBigInteger('invoiceProductCount')->default(0);
+            $table->decimal('totalInvoicePrice', 15, 2)->default(0);
             $table->decimal('discount')->nullable();
             $table->decimal('invoiceAfterDiscount')->nullable();
             $table->softDeletes();

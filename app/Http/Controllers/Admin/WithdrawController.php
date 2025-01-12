@@ -18,7 +18,14 @@ class WithdrawController extends Controller
 
         $Withdraws = Withdraw::get();
         return response()->json([
-            'data' => WithdrawResource::collection($Withdraws),
+            'data' => $Withdraws->map(function ($Withdraws) {
+                return [
+                    'id' => $Withdraws->id,
+                    'personName' => $Withdraws-> personName,
+                    'withdrawnAmount' => $Withdraws-> withdrawnAmount,
+                    'creationDate' => $Withdraws-> creationDate,
+                ];
+            }),
             'message' => "Show All Withdraws Successfully."
         ]);
     }
@@ -29,16 +36,13 @@ class WithdrawController extends Controller
         $this->authorize('manage_users');
 
            $Withdraw =Withdraw::create ([
-                "customerName" => $request-> customerName,
-                "sellerName" => $request-> sellerName,
-                "product_id" => $request-> product_id,
-                "WithdrawProductNum" => $request-> WithdrawProductNum,
-                "WithdrawPrice" => $request-> WithdrawPrice,
-                "discount" => $request-> discount,
-                "WithdrawAfterDiscount" => $request-> WithdrawAfterDiscount,
+                "personName" => $request-> personName,
+                // "availableWithdrawal" => $request-> availableWithdrawal,
+                "withdrawnAmount" => $request-> withdrawnAmount,
+                "remainingAmount" => $request-> remainingAmount,
+                "description" => $request-> description ,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
-
             ]);
            $Withdraw->save();
            return response()->json([
@@ -78,13 +82,11 @@ class WithdrawController extends Controller
         ], 404);
     }
        $Withdraw->update([
-        "customerName" => $request-> customerName,
-        "sellerName" => $request-> sellerName,
-        "product_id" => $request-> product_id,
-        "WithdrawProductNum" => $request-> WithdrawProductNum,
-        "WithdrawPrice" => $request-> WithdrawPrice,
-        "discount" => $request-> discount,
-        "WithdrawAfterDiscount" => $request-> WithdrawAfterDiscount,
+        "personName" => $request-> personName,
+        // "availableWithdrawal" => $request-> availableWithdrawal,
+        "withdrawnAmount" => $request-> withdrawnAmount,
+        "remainingAmount" => $request-> remainingAmount,
+        "description" => $request-> description ,
         'creationDate' => now()->timezone('Africa/Cairo')
         ->format('Y-m-d h:i:s'),
         ]);

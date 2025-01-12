@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\InvoiceRequest;
@@ -16,9 +17,15 @@ class InvoiceController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Invoices = Invoice::get();
+        $Invoices = Invoice::paginate(10);
         return response()->json([
-            'data' => InvoiceResource::collection($Invoices),
+            'data' => $Invoices->map(function ($invoice) {
+                return [
+                    'id' => $invoice->id, // اسم العميل
+                    'customerName' => $invoice->customerName, // اسم العميل
+                    'creationDate' => $invoice->creationDate, // تاريخ الإنشاء
+                ];
+            }),
             'message' => "Show All Invoices Successfully."
         ]);
     }
@@ -31,37 +38,75 @@ class InvoiceController extends Controller
            $Invoice =Invoice::create ([
                 "customerName" => $request-> customerName,
                 "sellerName" => $request-> sellerName,
-                "product_id" => $request-> product_id,
-                "invoiceProductNum" => $request-> invoiceProductNum,
-                "invoicePrice" => $request-> invoicePrice,
                 "discount" => $request-> discount,
-                "invoiceAfterDiscount" => $request-> invoiceAfterDiscount,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
-
             ]);
-           $Invoice->save();
-           return response()->json([
-            'data' =>new InvoiceResource($Invoice),
-            'message' => "Invoice Created Successfully."
-        ]);
+
+
+            if ($request->has('products')) {
+                foreach ($request->products as $product) {
+                    $productModel = Product::find($product['id']);
+                    $totalPriceForProduct = $productModel->purchesPrice * $product['quantity'];
+                    $Invoice->products()->attach($product['id'], [
+                        'quantity' => $product['quantity'],
+                        'total' => $totalPriceForProduct,
+                    ]);
+                }
+            }
+
+
+            $totalInvoicePrice = $Invoice->load('products')->calculateTotalPrice();
+
+            $finalPrice = $totalInvoicePrice - ($Invoice->discount ?? 0);
+
+
+            $Invoice->update([
+                'totalInvoicePrice' => $totalInvoicePrice,
+                'invoiceAfterDiscount' => $finalPrice,
+            ]);
+
+            $Invoice->updateInvoiceProductCount();
+
+            return response()->json([
+                'message' => 'Invoice update successfully',
+                'invoice' => new InvoiceResource($Invoice->load('products')),
+                'totalInvoicePrice' => $totalInvoicePrice,
+                'discount' => $Invoice->discount,
+                'invoiceAfterDiscount' => $finalPrice,
+            ]);
         }
+
 
 
     public function edit(string $id)
     {
         $this->authorize('manage_users');
-        $Invoice = Invoice::find($id);
+        $Invoice = Invoice::with('products')->find($id);
 
         if (!$Invoice) {
             return response()->json([
                 'message' => "Invoice not found."
             ], 404);
         }
+        $totalInvoicePrice = $Invoice->load('products')->calculateTotalPrice();
+
+        $finalPrice = $totalInvoicePrice - ($Invoice->discount ?? 0);
+
+
+        $Invoice->update([
+            'totalInvoicePrice' => $totalInvoicePrice,
+            'invoiceAfterDiscount' => $finalPrice,
+        ]);
+
+        // $Invoice->updateInvoiceProductCount();
 
         return response()->json([
-            'data' =>new InvoiceResource($Invoice),
-            'message' => "Edit Invoice By ID Successfully."
+            'message' => 'Invoice update successfully',
+            'invoice' => new InvoiceResource($Invoice->load('products')),
+            'totalInvoicePrice' => $totalInvoicePrice,
+            'discount' => $Invoice->discount,
+            'invoiceAfterDiscount' => $finalPrice,
         ]);
     }
 
@@ -79,21 +124,47 @@ class InvoiceController extends Controller
     }
        $Invoice->update([
         "customerName" => $request-> customerName,
-        "sellerName" => $request-> sellerName,
-        "product_id" => $request-> product_id,
-        "invoiceProductNum" => $request-> invoiceProductNum,
-        "invoicePrice" => $request-> invoicePrice,
-        "discount" => $request-> discount,
-        "invoiceAfterDiscount" => $request-> invoiceAfterDiscount,
-        'creationDate' => now()->timezone('Africa/Cairo')
-        ->format('Y-m-d h:i:s'),
-        ]);
+                "sellerName" => $request-> sellerName,
+                "discount" => $request-> discount,
+                'creationDate' => now()->timezone('Africa/Cairo')
+                ->format('Y-m-d h:i:s'),
+            ]);
 
-    //    $Invoice->save();
-       return response()->json([
-        'data' =>new InvoiceResource($Invoice),
-        'message' => " Update Invoice By Id Successfully."
-    ]);
+            if ($request->has('products')) {
+                $productsData = [];
+                foreach ($request->products as $product) {
+                    $productModel = Product::find($product['id']);
+                    $totalPriceForProduct = $productModel->purchesPrice * $product['quantity'];
+
+                    $productsData[$product['id']] = [
+                        'quantity' => $product['quantity'],
+                        'total' => $totalPriceForProduct,
+                    ];
+                }
+
+                $Invoice->products()->sync($productsData);
+            }
+
+
+            $totalInvoicePrice = $Invoice->load('products')->calculateTotalPrice();
+
+            $finalPrice = $totalInvoicePrice - ($Invoice->discount ?? 0);
+
+
+            $Invoice->update([
+                'totalInvoicePrice' => $totalInvoicePrice,
+                'invoiceAfterDiscount' => $finalPrice,
+            ]);
+
+            $Invoice->updateInvoiceProductCount();
+
+            return response()->json([
+                'message' => 'Invoice created successfully',
+                'invoice' => new InvoiceResource($Invoice->load('products')),
+                'totalInvoicePrice' => $totalInvoicePrice,
+                'discount' => $Invoice->discount,
+                'invoiceAfterDiscount' => $finalPrice,
+            ]);
 
   }
 

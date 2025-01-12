@@ -17,10 +17,10 @@ class WithdrawResource extends JsonResource
         return [
             'id' => $this -> id,
             'personName'  => $this -> personName,
-            'creationDate'  => $this -> ceationDate,
-            'totalAmount'  => $this -> totalAmount,
+            'creationDate'  => $this -> creationDate,
+            'availableWithdrawal'  => $this -> availableWithdrawal,
             'withdrawnAmount'  => $this -> withdrawnAmount,
-            'remainingAmount'  => $this -> remainingAmoumt,
+            'remainingAmount'  => $this -> remainingAmount,
             'description'  => $this -> description,
         ];
     }

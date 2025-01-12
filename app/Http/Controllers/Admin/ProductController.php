@@ -30,18 +30,18 @@ class ProductController extends Controller
         $this->authorize('manage_users');
         $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
         $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
-        $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
+        // $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
         $profit = $formattedPurchesPrice - $formattedSellingPrice;
            $Product =Product::create ([
                 "category_id" => $request->category_id,
-                "Product_id" => $request->Product_id,
+                // "Product_id" => $request->Product_id,
                 "name" => $request->name,
-                "productNum" => $request->productNum,
-                "quantity" => $request->quantity,
+                // "productNum" => $request->productNum,
+                // "quantity" => $request->quantity,
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" =>  $formattedPurchesPrice,
                 "profit" => $profit,
-                'totalPrice' => $formattedTotalPrice,
+                // 'totalPrice' => $formattedTotalPrice,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
             ]);
@@ -80,8 +80,7 @@ class ProductController extends Controller
             $this->authorize('manage_users');
             $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
             $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
-            $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
-            $profit = $formattedSellingPrice - $formattedPurchesPrice;
+            $profit = $formattedPurchesPrice - $formattedSellingPrice;
            $Product =Product::findOrFail($id);
 
            if (!$Product) {
@@ -91,14 +90,11 @@ class ProductController extends Controller
         }
            $Product->update([
                 "category_id" => $request->category_id,
-                "Product_id" => $request->Product_id,
+                // "Product_id" => $request->Product_id,
                 "name" => $request->name,
-                "productNum" => $request->productNum,
-                "quantity" => $request->quantity,
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" => $formattedPurchesPrice,
                 "profit" =>  $profit,
-                'totalPrice' => $formattedTotalPrice,
                 'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
                 // 'creationDate'=> $request->creationDate,
