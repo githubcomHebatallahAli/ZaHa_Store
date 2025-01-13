@@ -26,6 +26,13 @@ class WithdrawController extends Controller
                     'creationDate' => $Withdraws-> creationDate,
                 ];
             }),
+            'pagination' => [
+                'total' => $Withdraws->total(),
+                'count' => $Withdraws->count(),
+                'per_page' => $Withdraws->perPage(),
+                'current_page' => $Withdraws->currentPage(),
+                'total_pages' => $Withdraws->lastPage(),
+            ],
             'message' => "Show All Withdraws Successfully."
         ]);
     }

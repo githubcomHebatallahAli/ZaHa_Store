@@ -19,16 +19,16 @@ class InvoiceResource extends JsonResource
             'customerName' => $this -> customerName,
             'sellerName' => $this -> sellerName,
             'invoiceProductCount' => $this -> invoiceProductCount,
-            // 'invoicePrice' => $this -> invoicePrice,
-            // 'discount' => $this -> discount,
-            // 'invoiceAfterDiscount' => $this -> invoiceAfterDiscount,
             'creationDate' => $this -> creationDate,
             'products' => $this->products->map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'categoryName' => $product->category->name ?? null,
+                    'sellingPrice' => $product->sellingPrice,
                     'quantity' => $product->pivot->quantity,
                     'total' => $product->pivot->total,
+                    // 'profit' => $product->pivot->profit
                 ];
             }),
         ];

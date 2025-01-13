@@ -16,18 +16,19 @@ class Invoice extends Model
         'invoiceProductCount',
         'totalInvoicePrice',
         'discount',
-        'invoiceAfterDiscount'
+        'invoiceAfterDiscount',
+        'profit'
     ];
 
     public function products()
     {
         return $this->belongsToMany(Product::class, 'invoice_products')
-                    ->withPivot('quantity', 'total');
+                    ->withPivot('quantity', 'total','profit');
     }
 
     protected static function booted()
 {
-   
+
     static::created(function ($invoice) {
         $invoice->load('products');
         $invoice->updateInvoiceProductCount();

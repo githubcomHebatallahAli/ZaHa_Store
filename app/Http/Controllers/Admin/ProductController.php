@@ -19,10 +19,17 @@ class ProductController extends Controller
 
         $Product = Product::paginate(10);
 
-                  return response()->json([
-                      'data' =>  ShowAllProductResource::collection($Product),
-                      'message' => "Show All Products."
-                  ]);
+        return response()->json([
+            'data' => ShowAllProductResource::collection($Product),
+            'pagination' => [
+                'total' => $Product->total(),
+                'count' => $Product->count(),
+                'per_page' => $Product->perPage(),
+                'current_page' => $Product->currentPage(),
+                'total_pages' => $Product->lastPage(),
+            ],
+            'message' => "Show All Products."
+        ]);
     }
 
     public function create(ProductRequest $request)
@@ -30,20 +37,14 @@ class ProductController extends Controller
         $this->authorize('manage_users');
         $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
         $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
-        // $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
-        $profit = $formattedPurchesPrice - $formattedSellingPrice;
+        $profit = $formattedSellingPrice - $formattedPurchesPrice;
            $Product =Product::create ([
                 "category_id" => $request->category_id,
-                // "Product_id" => $request->Product_id,
                 "name" => $request->name,
-                // "productNum" => $request->productNum,
-                // "quantity" => $request->quantity,
+                "quantity" => $request->quantity,
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" =>  $formattedPurchesPrice,
                 "profit" => $profit,
-                // 'totalPrice' => $formattedTotalPrice,
-                'creationDate' => now()->timezone('Africa/Cairo')
-                ->format('Y-m-d h:i:s'),
             ]);
 
             if ($request->hasFile('image')) {
@@ -80,7 +81,7 @@ class ProductController extends Controller
             $this->authorize('manage_users');
             $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
             $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
-            $profit = $formattedPurchesPrice - $formattedSellingPrice;
+            $profit = $formattedSellingPrice - $formattedPurchesPrice;
            $Product =Product::findOrFail($id);
 
            if (!$Product) {
@@ -90,19 +91,14 @@ class ProductController extends Controller
         }
            $Product->update([
                 "category_id" => $request->category_id,
-                // "Product_id" => $request->Product_id,
                 "name" => $request->name,
+                "quantity" => $request->quantity,
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" => $formattedPurchesPrice,
                 "profit" =>  $profit,
-                'creationDate' => now()->timezone('Africa/Cairo')
-                ->format('Y-m-d h:i:s'),
-                // 'creationDate'=> $request->creationDate,
+
             ]);
 
-
-
-        //    $Product->save();
            return response()->json([
             'data' =>new ProductResource($Product),
             'message' => " Update Product By Id Successfully."

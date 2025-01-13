@@ -16,18 +16,13 @@ class ShowAllProductResource extends JsonResource
     {
         return [
             "id" => $this -> id,
+            'image' => $this->image,
             "name" => $this -> name ,
-            // "productNum" => $this -> productNum,
-            "quantity" => $this -> quantity,
+    'categoryName' => $product->category->name ?? null,
+            'quantity' => $this -> quantity,
             "sellingPrice" => $this -> sellingPrice,
             "purchesPrice" => $this -> purchesPrice,
-            // 'totalPrice' => $this -> totalPrice,
-            // "profit" => $this -> profit,
-            'category' => new CategoryResource($this->category),
-            // 'shipment' => new ShipmentResource($this->shipment),
-            'shipment_id' => $this->shipment->id,
-            'image' => $this -> image,
-            'creationDate' => $this -> creationDate,
+
 
         ];
     }

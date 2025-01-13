@@ -18,11 +18,11 @@ class ProductResource extends JsonResource
         return [
             "id" => $this -> id,
             "name" => $this -> name ,
+            'quantity'=>$this->quantity,
             "sellingPrice" => $this -> sellingPrice,
             "purchesPrice" => $this -> purchesPrice,
             "profit" => $this -> profit,
             'image' => $this -> image,
-            'creationDate' => $this -> creationDate,
             'category' => new CategoryResource($this->category),
 
         ];

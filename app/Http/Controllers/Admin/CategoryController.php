@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
-use App\Http\Resources\Admin\CategoryProductResource;
 
 class CategoryController extends Controller
 {
@@ -17,10 +15,17 @@ class CategoryController extends Controller
     {
         $this->authorize('manage_users');
 
-        $category = Category::withCount('products')->get();
+        $category = Category::withCount('products')->paginate(10);
 
                   return response()->json([
                       'data' =>  CategoryResource::collection($category),
+                      'pagination' => [
+                        'total' => $category->total(),
+                        'count' => $category->count(),
+                        'per_page' => $category->perPage(),
+                        'current_page' => $category->currentPage(),
+                        'total_pages' => $category->lastPage(),
+                    ],
                       'message' => "Show All Category  With Products."
                   ]);
     }
@@ -51,7 +56,7 @@ class CategoryController extends Controller
             }
 
             return response()->json([
-                'data' => new CategoryProductResource($category),
+                'data' => new CategoryResource($category),
                 'message' => "Edit Category With product By ID Successfully."
             ]);
         }

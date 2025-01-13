@@ -12,6 +12,7 @@ class InvoiceProduct extends Model
         'product_id',
         'invoice_id',
         'quantity',
-        'total'
+        'total',
+        'profit'
     ];
 }

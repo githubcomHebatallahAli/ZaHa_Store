@@ -13,6 +13,7 @@ class Product extends Model
     protected $fillable = [
         'category_id',
         'name',
+        'quantity',
         'sellingPrice',
         'purchesPrice',
         'profit',
@@ -46,7 +47,7 @@ class Product extends Model
     public function invoices()
     {
         return $this->belongsToMany(Invoice::class ,'invoice_products' )
-        ->withPivot('quantity','total');
+        ->withPivot('quantity','total','profit');
     }
 
 }

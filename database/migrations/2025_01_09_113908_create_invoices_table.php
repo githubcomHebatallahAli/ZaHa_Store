@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('totalInvoicePrice', 15, 2)->default(0);
             $table->decimal('discount')->nullable();
             $table->decimal('invoiceAfterDiscount')->nullable();
+            $table->decimal('profit', 10, 2)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

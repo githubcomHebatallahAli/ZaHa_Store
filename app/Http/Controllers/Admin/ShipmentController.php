@@ -23,6 +23,14 @@ class ShipmentController extends Controller
 
                   return response()->json([
                       'data' =>  ShipmentResource::collection($Shipment),
+                      'pagination' => [
+                        'total' => $Shipment->total(),
+                        'count' => $Shipment->count(),
+                        'per_page' => $Shipment->perPage(),
+                        'current_page' => $Shipment->currentPage(),
+                        'total_pages' => $Shipment->lastPage(),
+                    ],
+
                       'message' => "Show All Shipment."
                   ]);
     }
@@ -30,7 +38,7 @@ class ShipmentController extends Controller
     public function create(ShipmentRequest $request)
     {
         $this->authorize('manage_users');
-
+        $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
            $Shipment =Shipment::create ([
                 "supplierName" => $request->supplierName,
                 "importer" => $request->importer,
@@ -53,7 +61,6 @@ class ShipmentController extends Controller
             $Shipment->updateShipmentProductsCount();
 
             $Shipment->totalPrice = $Shipment->calculateTotalPrice();
-
            $Shipment->save();
            return response()->json([
             'data' =>new ShipmentProductResource($Shipment),

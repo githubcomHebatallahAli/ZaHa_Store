@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
             $table->string('name');
+            $table->integer('quantity')->default(0);
             $table->decimal('sellingPrice');
             $table->decimal('purchesPrice');
             $table->decimal('profit');
