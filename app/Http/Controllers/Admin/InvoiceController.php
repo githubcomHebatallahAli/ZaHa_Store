@@ -247,6 +247,10 @@ public function create(InvoiceRequest $request)
     }
 
 
+
+
+
+
     public function update(InvoiceRequest $request, string $id)
 {
     //  dd($request->all());
@@ -255,11 +259,10 @@ public function create(InvoiceRequest $request)
     $Invoice = Invoice::findOrFail($id);
 
     if (!$Invoice) {
-        // dd('Invoice not found');
         return response()->json([
             'message' => "Invoice not found."
         ], 404);
-
+    }
     $previousProducts = $Invoice->products()
         ->select('products.id', 'invoice_products.quantity')
         ->pluck('invoice_products.quantity', 'products.id')
@@ -269,13 +272,13 @@ public function create(InvoiceRequest $request)
         "customerName" => $request->customerName,
         "sellerName" => $request->sellerName,
         "discount" => $request->discount,
-        // "extraAmount" => $request->extraAmount ?? 0,
+        "extraAmount" => $request->extraAmount ?? 0,
         'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
     ]);
 
     $totalProfit = 0;
     $totalSellingPrice = 0;
-    // $extraAmount = $request->extraAmount ?? 0;
+    $extraAmount = $request->extraAmount ?? 0;
 
     $outOfStockProducts = [];
 
@@ -336,12 +339,12 @@ public function create(InvoiceRequest $request)
         if (!empty($outOfStockProducts)) {
             $warningMessage = "The following products are now out of stock: " . implode(', ', $outOfStockProducts);
         }
-        // dd($productsData);
+
         $Invoice->products()->sync($productsData);
     }
 
     $discount = $Invoice->discount ?? 0;
-    // $totalSellingPrice += $extraAmount;
+    $totalSellingPrice += $extraAmount;
     $finalPrice = $totalSellingPrice - $discount;
     $netProfit = $totalProfit - $discount;
 
@@ -349,7 +352,7 @@ public function create(InvoiceRequest $request)
     $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
     $formattedNetProfit = number_format($netProfit, 2, '.', '');
     $formattedDiscount = number_format($discount, 2, '.', '');
-    // $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
+    $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
 
     $Invoice->update([
         'totalInvoicePrice' => $formattedTotalSellingPrice,
@@ -362,7 +365,7 @@ public function create(InvoiceRequest $request)
     return response()->json([
         'message' => 'Invoice updated successfully.',
         'invoice' => new InvoiceResource($Invoice->load('products')),
-        // 'extraAmount' => $formattedExtraAmount,
+        'extraAmount' => $formattedExtraAmount,
         'totalInvoicePrice' => $formattedTotalSellingPrice,
         'discount' => $formattedDiscount,
         'invoiceAfterDiscount' => $formattedFinalPrice,
@@ -370,7 +373,7 @@ public function create(InvoiceRequest $request)
     ]);
 }
 
-}
+
 
 
   public function destroy(string $id)

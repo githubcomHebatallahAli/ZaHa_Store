@@ -21,6 +21,7 @@ class Invoice extends Model
         'invoiceAfterDiscount',
         'profit',
         'extraAmount'
+        
     ];
 
     public function products()
