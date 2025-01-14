@@ -29,6 +29,8 @@ class ShipmentController extends Controller
                         'per_page' => $Shipment->perPage(),
                         'current_page' => $Shipment->currentPage(),
                         'total_pages' => $Shipment->lastPage(),
+                        'next_page_url' => $Shipment->nextPageUrl(),
+                        'prev_page_url' => $Shipment->previousPageUrl()
                     ],
 
                       'message' => "Show All Shipment."
@@ -211,7 +213,7 @@ class ShipmentController extends Controller
 
 
     $Shipment->updateShipmentProductsCount();
-    
+
     $Shipment->totalPrice = $Shipment->calculateTotalPrice();
     $Shipment->save();
 

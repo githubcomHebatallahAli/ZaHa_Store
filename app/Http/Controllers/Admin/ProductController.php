@@ -27,6 +27,8 @@ class ProductController extends Controller
                 'per_page' => $Product->perPage(),
                 'current_page' => $Product->currentPage(),
                 'total_pages' => $Product->lastPage(),
+                'next_page_url' => $Product->nextPageUrl(),
+                'prev_page_url' => $Product->previousPageUrl(),
             ],
             'message' => "Show All Products."
         ]);

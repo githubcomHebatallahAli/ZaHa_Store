@@ -32,6 +32,8 @@ class InvoiceController extends Controller
                         'per_page' => $Invoices->perPage(),
                         'current_page' => $Invoices->currentPage(),
                         'total_pages' => $Invoices->lastPage(),
+                        'next_page_url' => $Invoices->nextPageUrl(), 
+                        'prev_page_url' => $Invoices->previousPageUrl(),
                     ],
             'message' => "Show All Invoices Successfully."
         ]);

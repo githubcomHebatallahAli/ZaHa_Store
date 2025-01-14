@@ -25,6 +25,8 @@ class CategoryController extends Controller
                         'per_page' => $category->perPage(),
                         'current_page' => $category->currentPage(),
                         'total_pages' => $category->lastPage(),
+                        'next_page_url' => $category->nextPageUrl(),
+                        'prev_page_url' => $category->previousPageUrl(),
                     ],
                       'message' => "Show All Category  With Products."
                   ]);

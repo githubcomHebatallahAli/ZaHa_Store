@@ -32,6 +32,8 @@ class WithdrawController extends Controller
                 'per_page' => $Withdraws->perPage(),
                 'current_page' => $Withdraws->currentPage(),
                 'total_pages' => $Withdraws->lastPage(),
+                'next_page_url' => $Withdraws->nextPageUrl(),
+                'prev_page_url' => $Withdraws->previousPagUrl(),
             ],
             'message' => "Show All Withdraws Successfully."
         ]);
