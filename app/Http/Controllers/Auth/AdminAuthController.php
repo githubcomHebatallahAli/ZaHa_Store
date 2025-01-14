@@ -132,7 +132,7 @@ class AdminAuthController extends Controller
                 'message' => 'Admin successfully signed out',
                 'last_logout_at' => Carbon::now()->toDateTimeString(),
                 'session_duration' => gmdate("H:i:s", $sessionDuration)
-            ])->cookie('token', '', -1);
+            ]);
         }
 
         return response()->json([
@@ -177,12 +177,11 @@ class AdminAuthController extends Controller
         ->timezone('Africa/Cairo')->format('Y-m-d H:i:s');
         $admin = Admin::with('role:id,name')->find(auth()->guard('admin')->id());
         return response()->json([
-
-            // 'access_token' => $token,
-            // 'token_type' => 'bearer',
-            // 'expires_in' => auth()->guard('admin')->factory()->getTTL() * 60,
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->guard('admin')->factory()->getTTL() * 60,
             'admin' => $admin,
-            'message' => 'Logged in successfully',
-        ])->cookie('token', $token, 720, null, null, false, true);
+
+        ]);
     }
 }
