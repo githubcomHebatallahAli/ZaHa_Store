@@ -132,7 +132,7 @@ class AdminAuthController extends Controller
                 'message' => 'Admin successfully signed out',
                 'last_logout_at' => Carbon::now()->toDateTimeString(),
                 'session_duration' => gmdate("H:i:s", $sessionDuration)
-            ]);
+            ])->cookie('token', '', -1);
         }
 
         return response()->json([
