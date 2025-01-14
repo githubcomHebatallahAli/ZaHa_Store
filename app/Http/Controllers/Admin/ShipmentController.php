@@ -35,38 +35,56 @@ class ShipmentController extends Controller
                   ]);
     }
 
+
+
     public function create(ShipmentRequest $request)
-    {
-        $this->authorize('manage_users');
-        $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
-           $Shipment =Shipment::create ([
-                "supplierName" => $request->supplierName,
-                "importer" => $request->importer,
-                "place" => $request->place,
-                'creationDate' => now()->timezone('Africa/Cairo')
-                ->format('Y-m-d h:i:s'),
-            ]);
+{
+    $this->authorize('manage_users');
 
-            if ($request->has('products')) {
+    $formattedTotalPrice = number_format($request->totalPrice, 2, '.', '');
 
-                foreach ($request->products as $product) {
-                    $Shipment->products()->syncWithoutDetaching([
-                        $product['id'] => [
-                            'quantity' => $product['quantity'],
-                            'price' => $product['price']
-                        ]
-                    ]);
-                }
+    $Shipment = Shipment::create([
+        "supplierName" => $request->supplierName,
+        "importer" => $request->importer,
+        "place" => $request->place,
+        'creationDate' => now()->timezone('Africa/Cairo')
+            ->format('Y-m-d h:i:s'),
+    ]);
+
+
+    if ($request->has('products')) {
+        foreach ($request->products as $product) {
+            $productModel = Product::find($product['id']);
+
+            if (!$productModel) {
+                return response()->json([
+                    'message' => "Product with ID {$product['id']} not found.",
+                ], 404);
             }
-            $Shipment->updateShipmentProductsCount();
 
-            $Shipment->totalPrice = $Shipment->calculateTotalPrice();
-           $Shipment->save();
-           return response()->json([
-            'data' =>new ShipmentProductResource($Shipment),
-            'message' => "Shipment Created Successfully."
-        ]);
+            $productModel->increment('quantity', $product['quantity']);
+
+            $Shipment->products()->syncWithoutDetaching([
+                $product['id'] => [
+                    'quantity' => $product['quantity'],
+                    'price' => $product['price']
+                ]
+            ]);
         }
+    }
+
+    $Shipment->updateShipmentProductsCount();
+
+    $Shipment->totalPrice = $Shipment->calculateTotalPrice();
+    $Shipment->save();
+
+    return response()->json([
+        'data' => new ShipmentProductResource($Shipment),
+        'message' => "Shipment Created Successfully.",
+
+    ]);
+}
+
 
         public function edit(string $id)
         {
@@ -86,47 +104,123 @@ class ShipmentController extends Controller
             ]);
         }
 
-        public function update(ShipmentRequest $request, string $id)
-        {
-            $this->authorize('manage_users');
+    //     public function update(ShipmentRequest $request, string $id)
+    //     {
+    //         $this->authorize('manage_users');
 
-           $Shipment =Shipment::findOrFail($id);
+    //        $Shipment =Shipment::findOrFail($id);
 
-           if (!$Shipment) {
-            return response()->json([
-                'message' => "Shipment not found."
-            ], 404);
-        }
-           $Shipment->update([
-            "supplierName" => $request->supplierName,
-            "importer" => $request->importer,
-            "place" => $request->place,
-            'creationDate' => now()->timezone('Africa/Cairo')
-            ->format('Y-m-d h:i:s'),
-            ]);
+    //        if (!$Shipment) {
+    //         return response()->json([
+    //             'message' => "Shipment not found."
+    //         ], 404);
+    //     }
+    //        $Shipment->update([
+    //         "supplierName" => $request->supplierName,
+    //         "importer" => $request->importer,
+    //         "place" => $request->place,
+    //         'creationDate' => now()->timezone('Africa/Cairo')
+    //         ->format('Y-m-d h:i:s'),
+    //         ]);
 
-            if ($request->has('products')) {
-                $products = [];
-                foreach ($request->products as $product) {
-                    $products[$product['id']] = [
-                        'quantity' => $product['quantity'],
-                        'price' => $product['price'],
-                    ];
+    //         if ($request->has('products')) {
+    //             $products = [];
+    //             foreach ($request->products as $product) {
+    //                 $products[$product['id']] = [
+    //                     'quantity' => $product['quantity'],
+    //                     'price' => $product['price'],
+    //                 ];
+    //             }
+
+    //             $Shipment->products()->sync($products);
+    //         }
+
+    //         $Shipment->updateShipmentProductsCount();
+
+    //         $Shipment->totalPrice = $Shipment->calculateTotalPrice();
+
+    //        $Shipment->save();
+    //        return response()->json([
+    //         'data' =>new ShipmentProductResource($Shipment),
+    //         'message' => " Update Shipment By Id Successfully."
+    //     ]);
+    // }
+
+
+    public function update(ShipmentRequest $request, string $id)
+{
+    $this->authorize('manage_users');
+
+    $Shipment = Shipment::findOrFail($id);
+
+    if (!$Shipment) {
+        return response()->json([
+            'message' => "Shipment not found."
+        ], 404);
+    }
+
+    $Shipment->update([
+        "supplierName" => $request->supplierName,
+        "importer" => $request->importer,
+        "place" => $request->place,
+        'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
+    ]);
+
+    $previousProducts = $Shipment->products()
+        ->select('products.id', 'shipment_products.quantity')
+        ->pluck('shipment_products.quantity', 'products.id')
+        ->toArray();
+
+    if ($request->has('products')) {
+        $productsData = [];
+        $errors = [];
+
+        foreach ($request->products as $product) {
+            $productModel = Product::find($product['id']);
+            $previousQuantity = $previousProducts[$product['id']] ?? 0;
+            $newQuantity = $product['quantity'];
+
+            if ($newQuantity > $previousQuantity) {
+                $difference = $newQuantity - $previousQuantity;
+                $productModel->increment('quantity', $difference);
+            } elseif ($newQuantity < $previousQuantity) {
+                $difference = $previousQuantity - $newQuantity;
+                if ($productModel->quantity < $difference) {
+                    $errors[] = "Not enough quantity to reduce for product '{$productModel->name}'. Available: {$productModel->quantity}.";
+                    continue;
                 }
-
-                $Shipment->products()->sync($products);
+                $productModel->decrement('quantity', $difference);
             }
 
-            $Shipment->updateShipmentProductsCount();
+            $productsData[$product['id']] = [
+                'quantity' => $newQuantity,
+                'price' => $product['price'],
+            ];
+        }
 
-            $Shipment->totalPrice = $Shipment->calculateTotalPrice();
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'Some errors occurred while updating the shipment.',
+                'errors' => $errors,
+            ], 400);
+        }
 
-           $Shipment->save();
-           return response()->json([
-            'data' =>new ShipmentProductResource($Shipment),
-            'message' => " Update Shipment By Id Successfully."
-        ]);
+
+        $Shipment->products()->sync($productsData);
     }
+
+
+    $Shipment->updateShipmentProductsCount();
+    
+    $Shipment->totalPrice = $Shipment->calculateTotalPrice();
+    $Shipment->save();
+
+    return response()->json([
+        'data' => new ShipmentProductResource($Shipment->load('products')),
+        'message' => "Update Shipment By Id Successfully.",
+    ]);
+}
+
 
     public function destroy(string $id){
 

@@ -162,22 +162,18 @@ class InvoiceController extends Controller
 {
     $this->authorize('manage_users');
 
-    // الحصول على الفاتورة
     $Invoice = Invoice::findOrFail($id);
 
     if (!$Invoice) {
         return response()->json([
             'message' => "Invoice not found."
         ], 404);
-    }
 
-    // الحصول على الكميات السابقة للمنتجات في الفاتورة
     $previousProducts = $Invoice->products()
         ->select('products.id', 'invoice_products.quantity')
         ->pluck('invoice_products.quantity', 'products.id')
         ->toArray();
 
-    // تحديث بيانات الفاتورة الأساسية
     $Invoice->update([
         "customerName" => $request->customerName,
         "sellerName" => $request->sellerName,
@@ -188,43 +184,41 @@ class InvoiceController extends Controller
     $totalProfit = 0;
     $totalSellingPrice = 0;
 
-    // متغير لتخزين المنتجات التي نفدت من المخزون
     $outOfStockProducts = [];
 
-    // تحديث المنتجات المرتبطة بالفاتورة
+
     if ($request->has('products')) {
         $productsData = [];
-        $errors = []; // لتخزين الأخطاء
+        $errors = [];
 
         foreach ($request->products as $product) {
             $productModel = Product::find($product['id']);
-            $previousQuantity = $previousProducts[$product['id']] ?? 0; // الكمية السابقة في الفاتورة
-            $newQuantity = $product['quantity']; // الكمية الجديدة المطلوبة
+            $previousQuantity = $previousProducts[$product['id']] ?? 0;
+            $newQuantity = $product['quantity'];
 
-            // التحقق من توفر الكمية في المخزون
             if ($newQuantity > $previousQuantity) {
                 $difference = $newQuantity - $previousQuantity;
 
                 if ($difference > $productModel->quantity) {
                     $errors[] = "Not enough quantity for product '{$productModel->name}'. Available: {$productModel->quantity}.";
-                    continue; // تخطي هذا المنتج
+                    continue;
                 }
 
-                // تقليل الكمية من المخزون
+
                 $productModel->decrement('quantity', $difference);
             } elseif ($newQuantity < $previousQuantity) {
                 $difference = $previousQuantity - $newQuantity;
 
-                // زيادة الكمية في المخزون
+
                 $productModel->increment('quantity', $difference);
             }
 
-            // التحقق من أن الكمية المتبقية لا تساوي أو أقل من 0
+
             if ($productModel->quantity <= 0) {
-                $outOfStockProducts[] = $productModel->name; // إضافة المنتج إلى المصفوفة
+                $outOfStockProducts[] = $productModel->name;
             }
 
-            // تحديث بيانات المنتج في الفاتورة
+
             $totalSellingPriceForProduct = $productModel->sellingPrice * $newQuantity;
             $totalSellingPrice += $totalSellingPriceForProduct;
 
@@ -238,7 +232,6 @@ class InvoiceController extends Controller
             ];
         }
 
-        // التحقق من وجود أخطاء
         if (!empty($errors)) {
             return response()->json([
                 'message' => 'Some errors occurred while processing the invoice.',
@@ -246,7 +239,6 @@ class InvoiceController extends Controller
             ], 400);
         }
 
-        // تجميع رسالة التحذير إذا كانت هناك منتجات نفدت من المخزون
         $warningMessage = null;
         if (!empty($outOfStockProducts)) {
             $warningMessage = "The following products are now out of stock: " . implode(', ', $outOfStockProducts);
@@ -255,18 +247,15 @@ class InvoiceController extends Controller
         $Invoice->products()->sync($productsData);
     }
 
-    // حساب الأسعار النهائية
     $discount = $Invoice->discount ?? 0;
     $finalPrice = $totalSellingPrice - $discount;
     $netProfit = $totalProfit - $discount;
 
-    // تنسيق القيم
     $formattedTotalSellingPrice = number_format($totalSellingPrice, 2, '.', '');
     $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
     $formattedNetProfit = number_format($netProfit, 2, '.', '');
     $formattedDiscount = number_format($discount, 2, '.', '');
 
-    // تحديث إجمالي الفاتورة
     $Invoice->update([
         'totalInvoicePrice' => $formattedTotalSellingPrice,
         'invoiceAfterDiscount' => $formattedFinalPrice,
@@ -275,20 +264,17 @@ class InvoiceController extends Controller
 
     $Invoice->updateInvoiceProductCount();
 
-    // إرجاع استجابة مع التحذير إذا كانت المنتجات نفدت
     return response()->json([
         'message' => 'Invoice updated successfully.',
         'invoice' => new InvoiceResource($Invoice->load('products')),
         'totalInvoicePrice' => $formattedTotalSellingPrice,
         'discount' => $formattedDiscount,
         'invoiceAfterDiscount' => $formattedFinalPrice,
-        'warning' => $warningMessage, // إرسال التحذير إذا كان موجودًا
+        'warning' => $warningMessage,
     ]);
 }
 
-
-
-
+}
 
 
   public function destroy(string $id)
@@ -327,5 +313,7 @@ return response()->json([
   {
       return $this->forceDeleteModel(Invoice::class, $id);
   }
+
+
 
 }
