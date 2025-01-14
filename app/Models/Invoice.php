@@ -19,7 +19,8 @@ class Invoice extends Model
         'totalInvoicePrice',
         'discount',
         'invoiceAfterDiscount',
-        'profit'
+        'profit',
+        'extraAmount'
     ];
 
     public function products()

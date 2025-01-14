@@ -26,6 +26,7 @@ class InvoiceRequest extends FormRequest
             'customerName' => 'required|string',
             'sellerName' => 'required|string',
             'discount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'extraAmount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',

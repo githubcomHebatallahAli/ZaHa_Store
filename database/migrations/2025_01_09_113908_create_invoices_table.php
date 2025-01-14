@@ -18,8 +18,9 @@ return new class extends Migration
             $table->timestamp('creationDate')->nullable();
             $table->unsignedBigInteger('invoiceProductCount')->default(0);
             $table->decimal('totalInvoicePrice', 15, 2)->default(0);
-            $table->decimal('discount')->nullable();
-            $table->decimal('invoiceAfterDiscount')->nullable();
+            $table->decimal('discount', 10, 2)->nullable();
+            $table->decimal('extraAmount', 10, 2)->nullable();
+            $table->decimal('invoiceAfterDiscount', 15, 2)->nullable();
             $table->decimal('profit', 10, 2)->nullable();
             $table->softDeletes();
             $table->timestamps();
