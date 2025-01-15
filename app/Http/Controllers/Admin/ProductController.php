@@ -17,7 +17,7 @@ class ProductController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Product = Product::paginate(10);
+        $Product = Product::with('category')->paginate(10);
 
         return response()->json([
             'data' => ShowAllProductResource::collection($Product),
@@ -37,7 +37,7 @@ class ProductController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Product = Product::get();
+        $Product = Product::with('category')->get();
 
         return response()->json([
             'data' => ShowAllProductResource::collection($Product),

@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('personName');
             $table->timestamp('creationDate')->nullable();
-            $table->decimal('availableWithdrawal')->nullable();
-            $table->decimal('withdrawnAmount');
-            $table->decimal('remainingAmount')->nullable();
+            $table->decimal('amount', 15, 2);
+            $table->decimal('availableWithdrawal', 15, 2)->nullable();
+            $table->decimal('withdrawnAmount', 15, 2);
+            $table->decimal('remainingAmount', 15, 2)->nullable();
             $table->text('description');
+            $table->decimal('totalSalesCopy', 15, 2)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

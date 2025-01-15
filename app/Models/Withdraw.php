@@ -13,11 +13,13 @@ class Withdraw extends Model
     protected $fillable = [
         'personName',
         'creationDate',
+        'amount',
+        'totalSalesCopy',
         'availableWithdrawal',
         'withdrawnAmount',
         'remainingAmount',
         'description',
     ];
 
-  
+
 }

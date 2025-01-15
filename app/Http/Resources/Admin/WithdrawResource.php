@@ -22,6 +22,7 @@ class WithdrawResource extends JsonResource
             'withdrawnAmount'  => $this -> withdrawnAmount,
             'remainingAmount'  => $this -> remainingAmount,
             'description'  => $this -> description,
+            'totalSalesCopy' => $this ->totalSalesCopy
         ];
     }
 }

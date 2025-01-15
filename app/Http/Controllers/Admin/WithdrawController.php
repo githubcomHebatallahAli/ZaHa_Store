@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Invoice;
 use App\Models\Withdraw;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
@@ -44,21 +45,65 @@ class WithdrawController extends Controller
     {
         $this->authorize('manage_users');
 
-           $Withdraw =Withdraw::create ([
-                "personName" => $request-> personName,
-                // "availableWithdrawal" => $request-> availableWithdrawal,
-                "withdrawnAmount" => $request-> withdrawnAmount,
-                "remainingAmount" => $request-> remainingAmount,
-                "description" => $request-> description ,
-                'creationDate' => now()->timezone('Africa/Cairo')
+        $totalSales = Invoice::sum('invoiceAfterDiscount');
+
+        // حساب إجمالي السحوبات
+        $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+
+        // حساب المبلغ المتاح للسحب
+        $availableWithdrawal = $totalSales - $totalWithdrawals;
+
+        // المبلغ المطلوب سحبه
+        $amountToWithdraw = $request->amount;
+
+        // التحقق من أن المبلغ المطلوب سحبه لا يتجاوز المبلغ المتاح
+        if ($amountToWithdraw > $availableWithdrawal) {
+            return response()->json([
+                'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
+                'availableWithdrawal' => $availableWithdrawal,
+            ], 400);
+        }
+
+        $withdraw = Withdraw::create([
+            'personName' => $request->personName,
+            'creationDate' => now()->timezone('Africa/Cairo')
                 ->format('Y-m-d h:i:s'),
-            ]);
-           $Withdraw->save();
+            'availableWithdrawal' => $availableWithdrawal,
+            'withdrawnAmount' => $amountToWithdraw,
+            'remainingAmount' => $availableWithdrawal - $amountToWithdraw,
+            'total_sales_copy' => $totalSales,
+            'description' => $request->description ,
+        ]);
+
+        return response()->json([
+            'message' => 'تم السحب بنجاح.',
+            'withdraw' => $withdraw,
+            'availableWithdrawal' => $availableWithdrawal - $amountToWithdraw, // الرصيد المتاح بعد السحب
+        ]);
            return response()->json([
             'data' =>new WithdrawResource($Withdraw),
             'message' => "Withdraw Created Successfully."
         ]);
         }
+    // public function create(WithdrawRequest $request)
+    // {
+    //     $this->authorize('manage_users');
+
+    //        $Withdraw =Withdraw::create ([
+    //             "personName" => $request-> personName,
+    //             // "availableWithdrawal" => $request-> availableWithdrawal,
+    //             "withdrawnAmount" => $request-> withdrawnAmount,
+    //             "remainingAmount" => $request-> remainingAmount,
+    //             "description" => $request-> description ,
+    //             'creationDate' => now()->timezone('Africa/Cairo')
+    //             ->format('Y-m-d h:i:s'),
+    //         ]);
+    //        $Withdraw->save();
+    //        return response()->json([
+    //         'data' =>new WithdrawResource($Withdraw),
+    //         'message' => "Withdraw Created Successfully."
+    //     ]);
+    //     }
 
 
     public function edit(string $id)

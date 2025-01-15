@@ -18,7 +18,7 @@ class ShowAllProductResource extends JsonResource
             "id" => $this -> id,
             'image' => $this->image,
             "name" => $this -> name ,
-    'categoryName' => $product->category->name ?? null,
+            'categoryName' => $this->category->name ?? null,
             'quantity' => $this -> quantity,
             "sellingPrice" => $this -> sellingPrice,
             "purchesPrice" => $this -> purchesPrice,
