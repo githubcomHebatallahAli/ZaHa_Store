@@ -83,47 +83,38 @@ class WithdrawController extends Controller
 {
     $this->authorize('manage_users');
 
-    // حساب إجمالي المبيعات
     $totalSales = Invoice::sum('invoiceAfterDiscount');
 
-    // حساب إجمالي السحوبات
     $totalWithdrawals = Withdraw::sum('withdrawnAmount');
 
-    // حساب الحد المتاح للسحب
     $availableWithdrawal = $totalSales - $totalWithdrawals;
 
-    // المبلغ المطلوب سحبه
     $amountToWithdraw = $request->withdrawnAmount;
 
-    // التحقق من أن المبلغ المطلوب سحبه لا يتجاوز الحد المتاح
     if ($amountToWithdraw > $availableWithdrawal) {
         return response()->json([
             'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
             'availableWithdrawal' => $availableWithdrawal,
         ], 400);
-    }
 
-    // حساب المبلغ المتبقي بعد السحب الحالي
     $remainingAmountAfterWithdraw = $availableWithdrawal - $amountToWithdraw;
 
-    // إنشاء السحب في قاعدة البيانات
     $withdraw = Withdraw::create([
         'personName' => $request->personName,
         'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
-        'withdrawnAmount' => $amountToWithdraw, // المبلغ المسحوب
-        'remainingAmount' => $remainingAmountAfterWithdraw, // المبلغ المتبقي بعد السحب
-        'totalSalesCopy' => $totalSales, // نسخة من إجمالي المبيعات
-        'description' => $request->description, // وصف السحب
+        'withdrawnAmount' => $amountToWithdraw,
+        'remainingAmount' => $remainingAmountAfterWithdraw,
+        'totalSalesCopy' => $totalSales,
+        'description' => $request->description,
     ]);
 
-    // إرجاع الـ response
     return response()->json([
         'message' => 'تم السحب بنجاح.',
         'data' => new WithdrawResource($withdraw),
-        'availableWithdrawal' => $remainingAmountAfterWithdraw, // الحد المتاح بعد السحب
+        'availableWithdrawal' => $remainingAmountAfterWithdraw, 
     ]);
 }
-
+}
     public function edit(string $id)
     {
         $this->authorize('manage_users');
