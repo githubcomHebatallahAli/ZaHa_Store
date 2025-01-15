@@ -9,6 +9,7 @@ Route::controller(ProductController::class)->prefix('/admin')->middleware('admin
     function () {
 
    Route::get('/showAll/product','showAll');
+   Route::get('/showAll/product/withoutPaginate','showAllProduct');
    Route::post('/create/product', 'create');
    Route::get('/edit/product/{id}','edit');
    Route::post('/update/product/{id}', 'update');

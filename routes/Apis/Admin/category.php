@@ -9,6 +9,7 @@ Route::controller(CategoryController::class)->prefix('/admin')->middleware('admi
     function () {
 
    Route::get('/showAll/category','showAll');
+   Route::get('/showAll/category/withoutPaginate','showAllCat');
    Route::post('/create/category', 'create');
    Route::get('/edit/category/{id}','edit');
    Route::post('/update/category/{id}', 'update');

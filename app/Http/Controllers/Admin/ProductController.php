@@ -33,6 +33,17 @@ class ProductController extends Controller
             'message' => "Show All Products."
         ]);
     }
+    public function showAllProduct()
+    {
+        $this->authorize('manage_users');
+
+        $Product = Product::get();
+
+        return response()->json([
+            'data' => ShowAllProductResource::collection($Product),
+            'message' => "Show All Products."
+        ]);
+    }
 
     public function create(ProductRequest $request)
     {

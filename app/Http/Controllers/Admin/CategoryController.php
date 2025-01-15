@@ -31,6 +31,19 @@ class CategoryController extends Controller
                       'message' => "Show All Category  With Products."
                   ]);
     }
+    public function showAllCat()
+    {
+        $this->authorize('manage_users');
+
+        $category = Category::withCount('products')->get();
+
+                  return response()->json([
+                      'data' =>  CategoryResource::collection($category),
+                      'message' => "Show All Category  With Products."
+                  ]);
+    }
+
+
 
     public function create(CategoryRequest $request)
     {
