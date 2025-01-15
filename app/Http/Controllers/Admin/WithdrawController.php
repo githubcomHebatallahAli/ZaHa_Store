@@ -64,47 +64,25 @@ class WithdrawController extends Controller
             ], 400);
         }
 
-        $withdraw = Withdraw::create([
+        $Withdraw = Withdraw::create([
             'personName' => $request->personName,
             'creationDate' => now()->timezone('Africa/Cairo')
-                ->format('Y-m-d h:i:s'),
+            ->format('Y-m-d h:i:s'),
             'availableWithdrawal' => $availableWithdrawal,
             'withdrawnAmount' => $amountToWithdraw,
             'remainingAmount' => $availableWithdrawal - $amountToWithdraw,
-            'total_sales_copy' => $totalSales,
+            'totalSalesCopy' => $totalSales,
             'description' => $request->description ,
         ]);
 
         return response()->json([
             'message' => 'تم السحب بنجاح.',
-            'withdraw' => $withdraw,
+            // 'withdraw' => $withdraw,
+            'data' =>new WithdrawResource($Withdraw),
             'availableWithdrawal' => $availableWithdrawal - $amountToWithdraw, // الرصيد المتاح بعد السحب
         ]);
-           return response()->json([
-            'data' =>new WithdrawResource($Withdraw),
-            'message' => "Withdraw Created Successfully."
-        ]);
+
         }
-    // public function create(WithdrawRequest $request)
-    // {
-    //     $this->authorize('manage_users');
-
-    //        $Withdraw =Withdraw::create ([
-    //             "personName" => $request-> personName,
-    //             // "availableWithdrawal" => $request-> availableWithdrawal,
-    //             "withdrawnAmount" => $request-> withdrawnAmount,
-    //             "remainingAmount" => $request-> remainingAmount,
-    //             "description" => $request-> description ,
-    //             'creationDate' => now()->timezone('Africa/Cairo')
-    //             ->format('Y-m-d h:i:s'),
-    //         ]);
-    //        $Withdraw->save();
-    //        return response()->json([
-    //         'data' =>new WithdrawResource($Withdraw),
-    //         'message' => "Withdraw Created Successfully."
-    //     ]);
-    //     }
-
 
     public function edit(string $id)
     {

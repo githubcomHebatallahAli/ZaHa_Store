@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Http\Resources\Admin\ProductResource;
 use App\Http\Resources\Admin\ShowAllProductResource;
@@ -111,6 +112,14 @@ class ProductController extends Controller
                 "profit" =>  $profit,
 
             ]);
+
+            if ($request->hasFile('image')) {
+                if ($Product->image) {
+                    Storage::disk('public')->delete( $Product->image);
+                }
+                $imagePath = $request->file('image')->store('Products', 'public');
+                 $Product->image = $imagePath;
+            }
 
            return response()->json([
             'data' =>new ProductResource($Product),

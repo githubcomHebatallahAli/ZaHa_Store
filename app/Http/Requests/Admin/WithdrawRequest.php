@@ -27,7 +27,7 @@ class WithdrawRequest extends FormRequest
             'personName' =>'required|string',
             'availableWithdrawal' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'amount' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'withdrawnAmount' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'withdrawnAmount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'remainingAmount' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'totalSalesCopy' => 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'description' =>'required|string',
