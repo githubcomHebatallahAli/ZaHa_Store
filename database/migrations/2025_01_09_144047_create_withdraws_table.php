@@ -14,13 +14,10 @@ return new class extends Migration
         Schema::create('withdraws', function (Blueprint $table) {
             $table->id();
             $table->string('personName');
-            $table->timestamp('creationDate')->nullable();
-            $table->decimal('amount', 15, 2);
-            $table->decimal('availableWithdrawal', 15, 2)->nullable();
             $table->decimal('withdrawnAmount', 15, 2);
             $table->decimal('remainingAmount', 15, 2)->nullable();
             $table->text('description');
-            $table->decimal('totalSalesCopy', 15, 2)->nullable();
+            $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

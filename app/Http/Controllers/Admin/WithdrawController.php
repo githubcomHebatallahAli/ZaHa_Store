@@ -41,47 +41,88 @@ class WithdrawController extends Controller
     }
 
 
+    // public function create(WithdrawRequest $request)
+    // {
+    //     $this->authorize('manage_users');
+
+    //     $totalSales = Invoice::sum('invoiceAfterDiscount');
+
+    //     $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+
+    //     $availableWithdrawal = $totalSales - $totalWithdrawals;
+
+    //     $amountToWithdraw = $request->amount;
+
+    //     if ($amountToWithdraw > $availableWithdrawal) {
+    //         return response()->json([
+    //             'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
+    //             'availableWithdrawal' => $availableWithdrawal,
+    //         ], 400);
+    //     }
+
+    //     $Withdraw = Withdraw::create([
+    //         'personName' => $request->personName,
+    //         'creationDate' => now()->timezone('Africa/Cairo')
+    //         ->format('Y-m-d h:i:s'),
+    //         'availableWithdrawal' => $availableWithdrawal,
+    //         'withdrawnAmount' => $amountToWithdraw,
+    //         'remainingAmount' => $availableWithdrawal - $amountToWithdraw,
+    //         'totalSalesCopy' => $totalSales,
+    //         'description' => $request->description ,
+    //     ]);
+
+    //     return response()->json([
+    //         'message' => 'تم السحب بنجاح.',
+    //         'data' =>new WithdrawResource($Withdraw),
+    //         'availableWithdrawal' => $availableWithdrawal - $amountToWithdraw, // الرصيد المتاح بعد السحب
+    //     ]);
+
+    //     }
+
     public function create(WithdrawRequest $request)
-    {
-        $this->authorize('manage_users');
+{
+    $this->authorize('manage_users');
 
-        $totalSales = Invoice::sum('invoiceAfterDiscount');
+    // حساب إجمالي المبيعات
+    $totalSales = Invoice::sum('invoiceAfterDiscount');
 
-        // حساب إجمالي السحوبات
-        $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+    // حساب إجمالي السحوبات
+    $totalWithdrawals = Withdraw::sum('withdrawnAmount');
 
-        // حساب المبلغ المتاح للسحب
-        $availableWithdrawal = $totalSales - $totalWithdrawals;
+    // حساب الحد المتاح للسحب
+    $availableWithdrawal = $totalSales - $totalWithdrawals;
 
-        // المبلغ المطلوب سحبه
-        $amountToWithdraw = $request->amount;
+    // المبلغ المطلوب سحبه
+    $amountToWithdraw = $request->withdrawnAmount;
 
-        // التحقق من أن المبلغ المطلوب سحبه لا يتجاوز المبلغ المتاح
-        if ($amountToWithdraw > $availableWithdrawal) {
-            return response()->json([
-                'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
-                'availableWithdrawal' => $availableWithdrawal,
-            ], 400);
-        }
-
-        $Withdraw = Withdraw::create([
-            'personName' => $request->personName,
-            'creationDate' => now()->timezone('Africa/Cairo')
-            ->format('Y-m-d h:i:s'),
-            'availableWithdrawal' => $availableWithdrawal,
-            'withdrawnAmount' => $amountToWithdraw,
-            'remainingAmount' => $availableWithdrawal - $amountToWithdraw,
-            'totalSalesCopy' => $totalSales,
-            'description' => $request->description ,
-        ]);
-
+    // التحقق من أن المبلغ المطلوب سحبه لا يتجاوز الحد المتاح
+    if ($amountToWithdraw > $availableWithdrawal) {
         return response()->json([
-            'message' => 'تم السحب بنجاح.',
-            'data' =>new WithdrawResource($Withdraw),
-            'availableWithdrawal' => $availableWithdrawal - $amountToWithdraw, // الرصيد المتاح بعد السحب
-        ]);
+            'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
+            'availableWithdrawal' => $availableWithdrawal,
+        ], 400);
+    }
 
-        }
+    // حساب المبلغ المتبقي بعد السحب الحالي
+    $remainingAmountAfterWithdraw = $availableWithdrawal - $amountToWithdraw;
+
+    // إنشاء السحب في قاعدة البيانات
+    $withdraw = Withdraw::create([
+        'personName' => $request->personName,
+        'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
+        'withdrawnAmount' => $amountToWithdraw, // المبلغ المسحوب
+        'remainingAmount' => $remainingAmountAfterWithdraw, // المبلغ المتبقي بعد السحب
+        'totalSalesCopy' => $totalSales, // نسخة من إجمالي المبيعات
+        'description' => $request->description, // وصف السحب
+    ]);
+
+    // إرجاع الـ response
+    return response()->json([
+        'message' => 'تم السحب بنجاح.',
+        'data' => new WithdrawResource($withdraw),
+        'availableWithdrawal' => $remainingAmountAfterWithdraw, // الحد المتاح بعد السحب
+    ]);
+}
 
     public function edit(string $id)
     {
@@ -100,35 +141,74 @@ class WithdrawController extends Controller
         ]);
     }
 
-
-
     public function update(WithdrawRequest $request, string $id)
     {
         $this->authorize('manage_users');
-       $Withdraw =Withdraw::findOrFail($id);
 
-       if (!$Withdraw) {
-        return response()->json([
-            'message' => "Withdraw not found."
-        ], 404);
-    }
-       $Withdraw->update([
-        "personName" => $request-> personName,
-        // "availableWithdrawal" => $request-> availableWithdrawal,
-        "withdrawnAmount" => $request-> withdrawnAmount,
-        "remainingAmount" => $request-> remainingAmount,
-        "description" => $request-> description ,
-        'creationDate' => now()->timezone('Africa/Cairo')
-        ->format('Y-m-d h:i:s'),
+        // البحث عن السحب المطلوب
+        $withdraw = Withdraw::findOrFail($id);
+
+        if (!$withdraw) {
+            return response()->json([
+                'message' => "لم يتم العثور على السحب."
+            ], 404);
+        }
+
+        // حساب المبلغ المتاح للسحب قبل التحديث
+        $totalSales = Invoice::sum('invoiceAfterDiscount');
+        $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+        $availableWithdrawalBeforeUpdate = $totalSales - $totalWithdrawals;
+
+        // الفرق بين المبلغ القديم والمبلغ الجديد
+        $oldAmount = $withdraw->withdrawnAmount; // المبلغ القديم (20)
+        $newAmount = $request->amount; // المبلغ الجديد (10)
+        $difference = $oldAmount - $newAmount; // الفرق بين المبلغ القديم والجديد (20 - 10 = 10)
+
+        // إعادة المبلغ القديم إلى الحد المتاح للسحب
+        $availableWithdrawalBeforeUpdate += $oldAmount; // 930 + 20 = 950
+
+        // إذا كان المبلغ الجديد أكبر من المبلغ المتاح
+        if ($newAmount > $availableWithdrawalBeforeUpdate) {
+            return response()->json([
+                'message' => 'المبلغ المطلوب سحبه يتجاوز المبلغ المتاح.',
+                'availableWithdrawal' => $availableWithdrawalBeforeUpdate,
+            ], 400);
+        }
+
+        // سحب المبلغ الجديد
+        $availableWithdrawalAfterUpdate = $availableWithdrawalBeforeUpdate - $newAmount; // 950 - 10 = 940
+
+        // تحديث بيانات السحب في قاعدة البيانات
+        $withdraw->update([
+            'personName' => $request->personName,
+            'withdrawnAmount' => $newAmount,
+            'remainingAmount' => $availableWithdrawalAfterUpdate, // 940 (بدون خصم newAmount مرة أخرى)
+            // 'availableWithdrawal' => $availableWithdrawalAfterUpdate, // تم إزالة هذا السطر للحفاظ على القيمة الأصلية
+            'totalSalesCopy' => $totalSales,
+            'description' => $request->description,
+            'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
         ]);
 
-    //    $Withdraw->save();
-       return response()->json([
-        'data' =>new WithdrawResource($Withdraw),
-        'message' => " Update Withdraw By Id Successfully."
-    ]);
+        // إرجاع الـ response مع تحديث الحد المتاح للسحب
+        return response()->json([
+            'data' => [
+                'id' => $withdraw->id,
+                'personName' => $withdraw->personName,
+                'creationDate' => $withdraw->creationDate,
+                'availableWithdrawal' => $availableWithdrawalBeforeUpdate, // 950 (قبل التحديث)
+                'withdrawnAmount' => $withdraw->withdrawnAmount, // 10
+                'remainingAmount' => $availableWithdrawalAfterUpdate, // 940 (بعد التحديث)
+                'description' => $withdraw->description,
+                'totalSalesCopy' => $withdraw->totalSalesCopy,
+            ],
+            'message' => "تم تحديث السحب بنجاح.",
+            'availableWithdrawal' => $availableWithdrawalAfterUpdate, // 940 (بعد التحديث)
+        ]);
+    }
 
-  }
+
+
+
 
   public function destroy(string $id)
   {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Withdraw;
 use App\Http\Controllers\Controller;
 
 class StatisticsController extends Controller
@@ -17,16 +18,10 @@ class StatisticsController extends Controller
         $invoicesCount = Invoice::count();
         $sales = Invoice::sum('invoiceAfterDiscount');
         $netProfit = Invoice::sum('profit');
-        // $availableWithdrawal=
+        $totalWithdrawals = Withdraw::sum('withdrawnAmount'); // إجمالي السحوبات
+        $availableWithdrawal = $sales - $totalWithdrawals;
 
-        // $productsQuantities = Product::select('name', 'quantity')
-        // ->get()
-        // ->map(function ($product) {
-        //     return [
-        //         'name' => $product->name,
-        //         'quantity' => $product->quantity,
-        //     ];
-        // });
+
 
 
         $statistics = [
@@ -35,10 +30,7 @@ class StatisticsController extends Controller
             'Invoices_count' => $invoicesCount,
             'Sales' => $sales,
             'Net_Profit' => $netProfit,
-            // 'Available_Withdrawal'=> $availableWithdrawal,
-
-            // 'Products_Quantities' => $productsQuantities,
-
+            'Available_Withdrawal' => $availableWithdrawal,
 
         ];
 

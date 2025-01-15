@@ -18,11 +18,9 @@ class WithdrawResource extends JsonResource
             'id' => $this -> id,
             'personName'  => $this -> personName,
             'creationDate'  => $this -> creationDate,
-            'availableWithdrawal'  => $this -> availableWithdrawal,
             'withdrawnAmount'  => $this -> withdrawnAmount,
             'remainingAmount'  => $this -> remainingAmount,
             'description'  => $this -> description,
-            'totalSalesCopy' => $this ->totalSalesCopy
         ];
     }
 }
