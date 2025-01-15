@@ -77,7 +77,6 @@ class WithdrawController extends Controller
 
         return response()->json([
             'message' => 'تم السحب بنجاح.',
-            // 'withdraw' => $withdraw,
             'data' =>new WithdrawResource($Withdraw),
             'availableWithdrawal' => $availableWithdrawal - $amountToWithdraw, // الرصيد المتاح بعد السحب
         ]);

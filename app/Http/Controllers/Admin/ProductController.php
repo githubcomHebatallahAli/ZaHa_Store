@@ -120,6 +120,7 @@ class ProductController extends Controller
                 $imagePath = $request->file('image')->store('Products', 'public');
                  $Product->image = $imagePath;
             }
+            $Product->save();
 
            return response()->json([
             'data' =>new ProductResource($Product),
