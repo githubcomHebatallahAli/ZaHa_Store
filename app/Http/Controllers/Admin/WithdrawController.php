@@ -17,7 +17,7 @@ class WithdrawController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Withdraws = Withdraw::get();
+        $Withdraws =  Withdraw::paginate(10);
         return response()->json([
             'data' => $Withdraws->map(function ($Withdraws) {
                 return [
@@ -34,7 +34,7 @@ class WithdrawController extends Controller
                 'current_page' => $Withdraws->currentPage(),
                 'total_pages' => $Withdraws->lastPage(),
                 'next_page_url' => $Withdraws->nextPageUrl(),
-                'prev_page_url' => $Withdraws->previousPagUrl(),
+                'prev_page_url' => $Withdraws->previousPageUrl(),
             ],
             'message' => "Show All Withdraws Successfully."
         ]);
@@ -99,7 +99,7 @@ class WithdrawController extends Controller
 
     public function update(WithdrawRequest $request, Withdraw $withdraw)
     {
-       
+
 
         $this->authorize('manage_users');
 
@@ -118,15 +118,15 @@ class WithdrawController extends Controller
         }
 
         $remainingAmountAfterWithdraw = $availableWithdrawal - $amountToWithdraw;
-        dd($withdraw);
+
         $withdraw->update([
             'personName' => $request->personName,
             'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d H:i:s'),
-            'withdrawnAmount' => $amountToWithdraw,
+            'withdrawnAmount' => $request->withdrawnAmount,
             'remainingAmount' => $remainingAmountAfterWithdraw,
-            'totalSalesCopy' => $totalSales,
             'description' => $request->description,
         ]);
+
 
         return response()->json([
             'message' => 'تم تحديث السحب بنجاح.',
@@ -134,11 +134,6 @@ class WithdrawController extends Controller
             'availableWithdrawal' => $remainingAmountAfterWithdraw,
         ]);
     }
-
-
-
-
-
 
 
   public function destroy(string $id)

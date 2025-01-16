@@ -50,4 +50,10 @@ class Product extends Model
         ->withPivot('quantity','total','profit');
     }
 
+    public function agentInvoices()
+    {
+        return $this->belongsToMany(Agentinvoice::class ,'agentinvoice_products' )
+        ->withPivot('quantity','total');
+    }
+
 }

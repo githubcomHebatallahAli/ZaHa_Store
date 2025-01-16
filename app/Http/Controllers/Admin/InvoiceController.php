@@ -32,102 +32,12 @@ class InvoiceController extends Controller
                         'per_page' => $Invoices->perPage(),
                         'current_page' => $Invoices->currentPage(),
                         'total_pages' => $Invoices->lastPage(),
-                        'next_page_url' => $Invoices->nextPageUrl(), 
+                        'next_page_url' => $Invoices->nextPageUrl(),
                         'prev_page_url' => $Invoices->previousPageUrl(),
                     ],
             'message' => "Show All Invoices Successfully."
         ]);
     }
-
-//     public function create(InvoiceRequest $request)
-// {
-//     $this->authorize('manage_users');
-
-//     $Invoice = Invoice::create([
-//         "customerName" => $request->customerName,
-//         "sellerName" => $request->sellerName,
-//         "discount" => $request->discount,
-//         'creationDate' => now()->timezone('Africa/Cairo')
-//         ->format('Y-m-d h:i:s'),
-//     ]);
-
-//     $totalProfit = 0;
-//     $totalSellingPrice = 0;
-
-//     if ($request->has('products')) {
-//         foreach ($request->products as $product) {
-//             $productModel = Product::find($product['id']);
-
-//             if ($productModel->quantity <= 0) {
-//                 return response()->json([
-//                     'message' => "Product '{$productModel->name}' is out of stock and cannot be added to the invoice.",
-//                 ], 400);
-//             }
-
-//             if ($product['quantity'] > $productModel->quantity) {
-//                 return response()->json([
-//                     'message' => "Not enough quantity for product '{$productModel->name}'. Available: {$productModel->quantity}.",
-//                 ], 400);
-//             }
-
-//             $productModel->decrement('quantity', $product['quantity']);
-
-//             if ($productModel->quantity === 0) {
-//                 $outOfStockProducts[] = $productModel->name;
-//             }
-
-
-//             $totalSellingPriceForProduct = $productModel->sellingPrice * $product['quantity'];
-//             $totalSellingPrice += $totalSellingPriceForProduct;
-
-//             $profitForProduct = ($productModel->sellingPrice - $productModel->purchesPrice) * $product['quantity'];
-
-//             $totalProfit += $profitForProduct;
-
-//             $Invoice->products()->attach($product['id'], [
-//                 // 'name' => $productModel->name,
-//                 'quantity' => $product['quantity'],
-//                 'total' => $totalSellingPriceForProduct,
-//                 'profit' => $profitForProduct,
-//             ]);
-//         }
-//     }
-
-//     $discount = $Invoice->discount ?? 0;
-//     $finalPrice = $totalSellingPrice - $discount;
-
-
-//     $netProfit = $totalProfit - $discount;
-
-//     $formattedTotalSellingPrice = number_format($totalSellingPrice, 2, '.', '');
-//     $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
-//     $formattedNetProfit = number_format($netProfit, 2, '.', '');
-//     $formattedDiscount = number_format($discount, 2, '.', '');
-
-
-//     $Invoice->update([
-//         'totalInvoicePrice' => $formattedTotalSellingPrice,
-//         'invoiceAfterDiscount' => $formattedFinalPrice,
-//         'profit' => $formattedNetProfit,
-//     ]);
-
-//     $Invoice->updateInvoiceProductCount();
-
-//     $warningMessage = null;
-//     if (!empty($outOfStockProducts)) {
-//         $warningMessage = "The following products are now out of stock: " . implode(', ', $outOfStockProducts);
-//     }
-
-//     return response()->json([
-//         'message' => 'Invoice created successfully',
-//         'invoice' => new InvoiceResource($Invoice->load('products')),
-//         'totalInvoicePrice' => $formattedTotalSellingPrice,
-//         'discount' => $formattedDiscount,
-//         'invoiceAfterDiscount' => $formattedFinalPrice,
-//         // 'netProfit' => $formattedNetProfit,
-//         'warning' => $warningMessage,
-//     ]);
-// }
 
 
 public function create(InvoiceRequest $request)
@@ -247,10 +157,6 @@ public function create(InvoiceRequest $request)
             'invoiceAfterDiscount' => $finalPrice,
         ]);
     }
-
-
-
-
 
 
     public function update(InvoiceRequest $request, string $id)
