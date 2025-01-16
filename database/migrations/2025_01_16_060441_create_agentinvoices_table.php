@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('agentinvoices', function (Blueprint $table) {
             $table->id();
-            $table->string('customerName');
-            $table->string('sellerName');
+            $table->string('responsibleName');
+            $table->string('distributorName');
             $table->timestamp('creationDate')->nullable();
             $table->unsignedBigInteger('invoiceProductCount')->default(0);
             $table->decimal('totalInvoicePrice', 15, 2)->default(0);

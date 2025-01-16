@@ -25,8 +25,8 @@ class AgentInvoiceRequest extends FormRequest
     {
         return [
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
-            'customerName' => 'required|string',
-            'sellerName' => 'required|string',
+            'responsibleName' => 'required|string',
+            'distributorName' => 'required|string',
             'status'=> 'nullable|in:delivery,distribution',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',

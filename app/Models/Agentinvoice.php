@@ -10,8 +10,8 @@ class Agentinvoice extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'customerName',
-        'sellerName',
+        'responsibleName',
+        'distributorName',
         'creationDate',
         'invoiceProductCount',
         'status',

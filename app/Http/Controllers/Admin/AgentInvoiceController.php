@@ -23,7 +23,7 @@ class AgentInvoiceController extends Controller
             'data' => $AgentInvoices->map(function ($AgentInvoice) {
                 return [
                     'id' => $AgentInvoice->id,
-                    'distributorname' => $AgentInvoice->distributorname,
+                    'distributorName' => $AgentInvoice->distributorName,
                     'status' => $AgentInvoice->status,
                     'creationDate' => $AgentInvoice->creationDate,
                     'totalInvoicePrice' => $AgentInvoice-> totalInvoicePrice,
@@ -48,8 +48,8 @@ public function create(AgentInvoiceRequest $request)
     $this->authorize('manage_users');
 
     $AgentInvoice = Agentinvoice::create([
-        "customerName" => $request->customerName,
-        "distributorname" => $request->distributorname,
+        "distributorName" => $request->distributorName,
+        "responsibleName" => $request->responsibleName,
         "status" => 'distribution',
         'creationDate' => now()->timezone('Africa/Cairo')
             ->format('Y-m-d h:i:s'),
@@ -179,8 +179,8 @@ public function create(AgentInvoiceRequest $request)
         ->toArray();
 
     $AgentInvoice->update([
-        "customerName" => $request->customerName,
-        "sellerName" => $request->sellerName,
+        "distributorName" => $request->distributorName,
+        "responsibleName" => $request->responsibleName,
         "discount" => $request->discount,
         "extraAmount" => $request->extraAmount ?? 0,
         'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),

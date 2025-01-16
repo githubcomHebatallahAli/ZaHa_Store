@@ -16,8 +16,8 @@ class AgentInvoiceResource extends JsonResource
     {
         return [
             "id" => $this -> id,
-            'customerName' => $this -> customerName,
-            'sellerName' => $this -> sellerName,
+            'responsibleName' => $this -> responsibleName,
+            'distributorName' => $this -> distributorName,
             'invoiceProductCount' => $this -> invoiceProductCount,
             'status' => $this -> status,
             'creationDate' => $this -> creationDate,
