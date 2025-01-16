@@ -101,7 +101,6 @@ class WithdrawController extends Controller
     {
         $this->authorize('manage_users');
 
-        // استرجاع السحب المحدد
         $withdraw = Withdraw::find($id);
 
         if (!$withdraw) {
@@ -125,7 +124,6 @@ class WithdrawController extends Controller
 
         $remainingAmountAfterWithdraw = $availableWithdrawal - $amountToWithdraw;
 
-        // تحديث بيانات السحب
         $withdraw->update([
             'personName' => $request->personName,
             'withdrawnAmount' => $amountToWithdraw,
