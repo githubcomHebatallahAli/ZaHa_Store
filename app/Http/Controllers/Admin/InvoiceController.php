@@ -128,9 +128,12 @@ public function create(InvoiceRequest $request)
     ]);
 }
 
+
     public function edit(string $id)
     {
         $this->authorize('manage_users');
+
+        // استرجاع الفاتورة مع المنتجات المرتبطة بها
         $Invoice = Invoice::with('products')->find($id);
 
         if (!$Invoice) {
@@ -138,25 +141,54 @@ public function create(InvoiceRequest $request)
                 'message' => "Invoice not found."
             ], 404);
         }
-        $totalInvoicePrice = $Invoice->load('products')->calculateTotalPrice();
 
-        $finalPrice = $totalInvoicePrice - ($Invoice->discount ?? 0);
+        $totalProfit = 0;
+        $totalSellingPrice = 0;
+        $extraAmount = $Invoice->extraAmount ?? 0;   // يمكن تحديد قيمة افتراضية للمبلغ الإضافي في حال كان مطلوبًا
 
+        // التحقق من وجود منتجات في الفاتورة وتحديث الكميات إذا لزم الأمر
+        if ($Invoice->products->isNotEmpty()) {
+            foreach ($Invoice->products as $product) {
+                $totalSellingPriceForProduct = $product->pivot->total; // الحصول على إجمالي سعر المنتج
+                $totalSellingPrice += $totalSellingPriceForProduct;
 
+                $profitForProduct = ($product->sellingPrice - $product->purchesPrice) * $product->pivot->quantity;
+                $totalProfit += $profitForProduct;
+            }
+        }
+
+        // حساب السعر النهائي بعد الخصم
+        $discount = $Invoice->discount ?? 0;
+        $totalSellingPrice += $extraAmount;
+        $finalPrice = $totalSellingPrice - $discount;
+        $netProfit = $totalProfit - $discount;
+
+        // تنسيق الأسعار
+        $formattedTotalSellingPrice = number_format($totalSellingPrice, 2, '.', '');
+        $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
+        $formattedNetProfit = number_format($netProfit, 2, '.', '');
+        $formattedDiscount = number_format($discount, 2, '.', '');
+        $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
+
+        // تحديث الفاتورة
         $Invoice->update([
-            'totalInvoicePrice' => $totalInvoicePrice,
-            'invoiceAfterDiscount' => $finalPrice,
+            'totalInvoicePrice' => $formattedTotalSellingPrice,
+            'invoiceAfterDiscount' => $formattedFinalPrice,
+            'profit' => $formattedNetProfit,
         ]);
 
-
+        // إعادة البيانات في الـ response
         return response()->json([
-            'message' => 'Invoice update successfully',
+            'message' => 'Invoice details fetched successfully',
             'invoice' => new InvoiceResource($Invoice->load('products')),
-            'totalInvoicePrice' => $totalInvoicePrice,
-            'discount' => $Invoice->discount,
-            'invoiceAfterDiscount' => $finalPrice,
+            'extraAmount' => $formattedExtraAmount,
+            'totalInvoicePrice' => $formattedTotalSellingPrice,
+            'discount' => $formattedDiscount,
+            'invoiceAfterDiscount' => $formattedFinalPrice,
+            'warning' => null,  // إضافة تحذير إذا لزم الأمر
         ]);
     }
+
 
 
     public function update(InvoiceRequest $request, string $id)
