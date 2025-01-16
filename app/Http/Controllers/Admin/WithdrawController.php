@@ -97,15 +97,21 @@ class WithdrawController extends Controller
     }
 
 
-    public function update(WithdrawRequest $request, Withdraw $withdraw)
+    public function update(WithdrawRequest $request, string $id)
     {
-
-
         $this->authorize('manage_users');
 
-        $totalSales = Invoice::sum('invoiceAfterDiscount');
-        $totalWithdrawals = Withdraw::where('id', '!=', $withdraw->id)->sum('withdrawnAmount');
+        // استرجاع السحب المحدد
+        $withdraw = Withdraw::find($id);
 
+        if (!$withdraw) {
+            return response()->json([
+                'message' => 'عملية السحب غير موجودة.',
+            ], 404);
+        }
+
+        $totalSales = Invoice::sum('invoiceAfterDiscount');
+        $totalWithdrawals = Withdraw::where('id', '!=', $id)->sum('withdrawnAmount'); // استبعاد السحب الحالي
         $availableWithdrawal = $totalSales - $totalWithdrawals;
 
         $amountToWithdraw = $request->withdrawnAmount;
@@ -119,21 +125,21 @@ class WithdrawController extends Controller
 
         $remainingAmountAfterWithdraw = $availableWithdrawal - $amountToWithdraw;
 
+        // تحديث بيانات السحب
         $withdraw->update([
             'personName' => $request->personName,
-            'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d H:i:s'),
-            'withdrawnAmount' => $request->withdrawnAmount,
+            'withdrawnAmount' => $amountToWithdraw,
             'remainingAmount' => $remainingAmountAfterWithdraw,
             'description' => $request->description,
         ]);
 
-
         return response()->json([
-            'message' => 'تم تحديث السحب بنجاح.',
+            'message' => 'تم تحديث عملية السحب بنجاح.',
             'data' => new WithdrawResource($withdraw),
             'availableWithdrawal' => $remainingAmountAfterWithdraw,
         ]);
     }
+
 
 
   public function destroy(string $id)
