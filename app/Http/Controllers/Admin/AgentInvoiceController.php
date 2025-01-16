@@ -163,7 +163,7 @@ public function create(AgentInvoiceRequest $request)
 
     public function update(AgentInvoiceRequest $request, string $id)
 {
-    //  dd($request->all());
+
     $this->authorize('manage_users');
 
     $AgentInvoice = Agentinvoice::findOrFail($id);
@@ -181,14 +181,15 @@ public function create(AgentInvoiceRequest $request)
     $AgentInvoice->update([
         "distributorName" => $request->distributorName,
         "responsibleName" => $request->responsibleName,
-        "discount" => $request->discount,
-        "extraAmount" => $request->extraAmount ?? 0,
+        "status" => $request-> status,
+        // "discount" => $request->discount,
+        // "extraAmount" => $request->extraAmount ?? 0,
         'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d h:i:s'),
     ]);
 
-    $totalProfit = 0;
+    // $totalProfit = 0;
     $totalSellingPrice = 0;
-    $extraAmount = $request->extraAmount ?? 0;
+    // $extraAmount = $request->extraAmount ?? 0;
 
     $outOfStockProducts = [];
 
@@ -228,13 +229,13 @@ public function create(AgentInvoiceRequest $request)
             $totalSellingPriceForProduct = $productModel->sellingPrice * $newQuantity;
             $totalSellingPrice += $totalSellingPriceForProduct;
 
-            $profitForProduct = ($productModel->sellingPrice - $productModel->purchesPrice) * $newQuantity;
-            $totalProfit += $profitForProduct;
+            // $profitForProduct = ($productModel->sellingPrice - $productModel->purchesPrice) * $newQuantity;
+            // $totalProfit += $profitForProduct;
 
             $productsData[$product['id']] = [
                 'quantity' => $newQuantity,
                 'total' => $totalSellingPriceForProduct,
-                'profit' => $profitForProduct,
+                // 'profit' => $profitForProduct,
             ];
         }
 
@@ -253,32 +254,32 @@ public function create(AgentInvoiceRequest $request)
         $AgentInvoice->products()->sync($productsData);
     }
 
-    $discount = $AgentInvoice->discount ?? 0;
-    $totalSellingPrice += $extraAmount;
-    $finalPrice = $totalSellingPrice - $discount;
-    $netProfit = $totalProfit - $discount;
+    // $discount = $AgentInvoice->discount ?? 0;
+    // $totalSellingPrice += $extraAmount;
+    // $finalPrice = $totalSellingPrice - $discount;
+    // $netProfit = $totalProfit - $discount;
 
     $formattedTotalSellingPrice = number_format($totalSellingPrice, 2, '.', '');
-    $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
-    $formattedNetProfit = number_format($netProfit, 2, '.', '');
-    $formattedDiscount = number_format($discount, 2, '.', '');
-    $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
+    // $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
+    // $formattedNetProfit = number_format($netProfit, 2, '.', '');
+    // $formattedDiscount = number_format($discount, 2, '.', '');
+    // $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
 
     $AgentInvoice->update([
         'totalAgentInvoicePrice' => $formattedTotalSellingPrice,
-        'AgentInvoiceAfterDiscount' => $formattedFinalPrice,
-        'profit' => $formattedNetProfit,
+        // 'AgentInvoiceAfterDiscount' => $formattedFinalPrice,
+        // 'profit' => $formattedNetProfit,
     ]);
 
-    $AgentInvoice->updateAgentInvoiceProductCount();
+    $AgentInvoice->updateInvoiceProductCount();
     // dd($AgentInvoice);
     return response()->json([
         'message' => 'AgentInvoice updated successfully.',
         'AgentInvoice' => new AgentInvoiceResource($AgentInvoice->load('products')),
-        'extraAmount' => $formattedExtraAmount,
+        // 'extraAmount' => $formattedExtraAmount,
         'totalAgentInvoicePrice' => $formattedTotalSellingPrice,
-        'discount' => $formattedDiscount,
-        'AgentInvoiceAfterDiscount' => $formattedFinalPrice,
+        // 'discount' => $formattedDiscount,
+        // 'AgentInvoiceAfterDiscount' => $formattedFinalPrice,
         'warning' => $warningMessage,
     ]);
 }
