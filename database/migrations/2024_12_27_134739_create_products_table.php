@@ -20,7 +20,6 @@ return new class extends Migration
             $table->decimal('purchesPrice');
             $table->decimal('profit');
             $table->String('image')->nullable();
-            $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
