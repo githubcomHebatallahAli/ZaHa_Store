@@ -14,7 +14,9 @@ class Product extends Model
         'category_id',
         'name',
         'quantity',
+        'priceBeforeDiscount',
         'sellingPrice',
+        'discount',
         'purchesPrice',
         'profit',
         'image'
@@ -55,5 +57,17 @@ class Product extends Model
         return $this->belongsToMany(Agentinvoice::class ,'agentinvoice_products' )
         ->withPivot('quantity','total');
     }
+
+    public function newProducts()
+    {
+        return $this->hasMany(Newproduct::class);
+    }
+
+    public function premProducts()
+    {
+        return $this->hasMany(Premproduct::class);
+    }
+
+
 
 }

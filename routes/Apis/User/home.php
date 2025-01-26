@@ -10,4 +10,10 @@ Route::controller(HomeController::class)->group(
     function () {
         Route::get('/showAll/product', 'showAllProduct');
         Route::get('/showAll/category', 'showAllCategory');
+        Route::get('/showAll/new/product', 'showAllNewProduct');
+        Route::get('/showAll/premium/product', 'showAllPremProduct');
+        // ==========================================
+
+        Route::get('/edit/category/with/products/{id}', 'editCategoryWithProducts');
+
     });

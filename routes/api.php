@@ -13,6 +13,8 @@ require __DIR__ . '/Apis/Admin/invoice.php';
 require __DIR__ . '/Apis/Admin/agentInvoice.php';
 require __DIR__ . '/Apis/Admin/withdraw.php';
 require __DIR__ . '/Apis/Admin/statistics.php';
+require __DIR__ . '/Apis/Admin/newProduct.php';
+require __DIR__ . '/Apis/Admin/premProduct.php';
 require __DIR__ . '/Apis/User/contact.php';
 require __DIR__ . '/Apis/User/home.php';
 

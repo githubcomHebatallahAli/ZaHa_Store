@@ -34,6 +34,7 @@ class ProductController extends Controller
             'message' => "Show All Products."
         ]);
     }
+
     public function showAllProduct()
     {
         $this->authorize('manage_users');
@@ -49,9 +50,17 @@ class ProductController extends Controller
     public function create(ProductRequest $request)
     {
         $this->authorize('manage_users');
+        $formattedPriceBeforeDiscount = number_format($request->priceBeforeDiscount, 2, '.', '');
         $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
         $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
         $profit = $formattedSellingPrice - $formattedPurchesPrice;
+
+        $discountValue = null;
+        if ($request->priceBeforeDiscount && $request->sellingPrice) {
+            $discountAmount = $formattedPriceBeforeDiscount - $formattedSellingPrice;
+            $discountValue = ($discountAmount / $formattedPriceBeforeDiscount) * 100;
+        }
+
            $Product =Product::create ([
                 "category_id" => $request->category_id,
                 "name" => $request->name,
@@ -59,6 +68,8 @@ class ProductController extends Controller
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" =>  $formattedPurchesPrice,
                 "profit" => $profit,
+                "priceBeforeDiscount" => $formattedPriceBeforeDiscount,
+                "discount" => $discountValue,
             ]);
 
             if ($request->hasFile('image')) {
@@ -93,9 +104,16 @@ class ProductController extends Controller
         public function update(ProductRequest $request, string $id)
         {
             $this->authorize('manage_users');
+            $formattedPriceBeforeDiscount = number_format($request->priceBeforeDiscount, 2, '.', '');
             $formattedSellingPrice = number_format($request->sellingPrice, 2, '.', '');
             $formattedPurchesPrice = number_format($request->purchesPrice, 2, '.', '');
             $profit = $formattedSellingPrice - $formattedPurchesPrice;
+
+            $discountValue = null;
+            if ($request->priceBeforeDiscount && $request->sellingPrice) {
+                $discountAmount = $formattedPriceBeforeDiscount - $formattedSellingPrice;
+                $discountValue = ($discountAmount / $formattedPriceBeforeDiscount) * 100;
+            }
            $Product =Product::findOrFail($id);
 
            if (!$Product) {
@@ -110,7 +128,8 @@ class ProductController extends Controller
                 "sellingPrice" => $formattedSellingPrice,
                 "purchesPrice" => $formattedPurchesPrice,
                 "profit" =>  $profit,
-
+                "priceBeforeDiscount" => $formattedPriceBeforeDiscount,
+                "discount" => $discountValue,
             ]);
 
             if ($request->hasFile('image')) {

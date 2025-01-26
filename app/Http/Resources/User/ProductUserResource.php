@@ -18,7 +18,9 @@ class ProductUserResource extends JsonResource
         return [
             "id" => $this -> id,
             "name" => $this -> name ,
-            "purchesPrice" => $this -> purchesPrice,
+            'priceBeforeDiscount'=>$this->priceBeforeDiscount,
+            'discount' => $this->discount ? number_format($this->discount, 2) . '%' : null,
+            'sellingPrice' => $this->sellingPrice,
             'image' => $this -> image,
         ];
     }

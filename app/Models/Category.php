@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Category extends Model
 {
     use HasFactory, SoftDeletes;
+    const storageFolder= 'Categories';
     protected $fillable = [
         'name',
-        'productsCount'
+        'productsCount',
+        'image',
+        'status'
     ];
 
     public function products()
@@ -26,7 +29,7 @@ class Category extends Model
             $category->save();
         });
 
-     
+
 
         static::deleted(function ($category) {
             if (method_exists($category, 'isForceDeleting') && $category->isForceDeleting()) {

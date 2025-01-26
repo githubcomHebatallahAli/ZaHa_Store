@@ -323,6 +323,7 @@ return response()->json([
   {
       return $this->forceDeleteModel(Agentinvoice::class, $id);
   }
+
     public function distribution(string $id)
 {
     $this->authorize('manage_users');
@@ -330,7 +331,7 @@ return response()->json([
 
     if (!$AgentInvoice) {
      return response()->json([
-         'message' => "AgentAgentInvoice not found."
+         'message' => "AgentInvoice not found."
      ], 404);
  }
 
@@ -342,22 +343,52 @@ return response()->json([
     ]);
 }
 
+// public function delivery(string $id)
+// {
+//     $this->authorize('manage_users');
+//     $AgentInvoice =Agentinvoice::findOrFail($id);
+
+//     if (!$AgentInvoice) {
+//      return response()->json([
+//          'message' => "AgentInvoice not found."
+//      ], 404);
+//  }
+
+//     $AgentInvoice->update(['status' => 'delivery']);
+
+//     return response()->json([
+//         'data' => new AgentInvoiceResource($AgentInvoice),
+//         'message' => 'AgentInvoice has been delivery.'
+//     ]);
+// }
+
 public function delivery(string $id)
 {
     $this->authorize('manage_users');
-    $AgentInvoice =Agentinvoice::findOrFail($id);
+    $AgentInvoice = Agentinvoice::findOrFail($id);
 
     if (!$AgentInvoice) {
-     return response()->json([
-         'message' => "AgentInvoice not found."
-     ], 404);
- }
+        return response()->json([
+            'message' => "AgentInvoice not found."
+        ], 404);
+    }
 
+    // استرجاع المنتجات المرتبطة بالفاتورة
+    $products = $AgentInvoice->products;
+
+    // زيادة كمية المنتجات في جدول المنتجات
+    foreach ($products as $product) {
+        $productModel = Product::find($product->id);
+        $productModel->increment('quantity', $product->pivot->quantity);
+    }
+
+    // تحديث حالة الفاتورة إلى "تم التسليم"
     $AgentInvoice->update(['status' => 'delivery']);
 
     return response()->json([
         'data' => new AgentInvoiceResource($AgentInvoice),
-        'message' => 'AgentInvoice has been delivery.'
+        'message' => 'AgentInvoice has been delivered and product quantities have been restored.'
     ]);
 }
+
 }

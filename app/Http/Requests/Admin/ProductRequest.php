@@ -27,6 +27,7 @@ class ProductRequest extends FormRequest
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string',
             'quantity'=> 'required|string',
+            'priceBeforeDiscount'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'sellingPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'purchesPrice' => 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'image.*'=>'nullable|image|mimes:jpg,jpeg,png,gif,svg',

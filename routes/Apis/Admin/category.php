@@ -17,4 +17,6 @@ Route::controller(CategoryController::class)->prefix('/admin')->middleware('admi
    Route::get('/showDeleted/category', 'showDeleted');
 Route::get('/restore/category/{id}','restore');
 Route::delete('/forceDelete/category/{id}','forceDelete');
+Route::patch('/view/category/{id}','view');
+Route::patch('/notView/category/{id}','notView');
    });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Category;
 use App\Traits\ManagesModelsTrait;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
 
@@ -50,7 +51,13 @@ class CategoryController extends Controller
         $this->authorize('manage_users');
            $Category =Category::create ([
                 "name" => $request->name,
+                "status" => 'notView',
             ]);
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store(Category::storageFolder);
+                $Category->image = $imagePath;
+            }
            $Category->save();
            return response()->json([
             'data' =>new CategoryResource($Category),
@@ -61,8 +68,7 @@ class CategoryController extends Controller
         public function edit(string $id)
         {
             $this->authorize('manage_users');
-  $category = Category::with('products')
-  ->withCount('products')->find($id);
+  $category = Category::withCount('products')->find($id);
 
             if (!$category) {
                 return response()->json([
@@ -72,7 +78,7 @@ class CategoryController extends Controller
 
             return response()->json([
                 'data' => new CategoryResource($category),
-                'message' => "Edit Category With product By ID Successfully."
+                'message' => "Edit Category By ID Successfully."
             ]);
         }
 
@@ -88,7 +94,16 @@ class CategoryController extends Controller
         }
            $Category->update([
             "name" => $request->name,
+            "status" => $request-> status,
             ]);
+
+            if ($request->hasFile('image')) {
+                if ($Category->image) {
+                    Storage::disk('public')->delete( $Category->image);
+                }
+                $imagePath = $request->file('image')->store('Categories', 'public');
+                 $Category->image = $imagePath;
+            }
 
            $Category->save();
            return response()->json([
@@ -131,6 +146,45 @@ class CategoryController extends Controller
 
         return $this->forceDeleteModel(Category::class, $id);
     }
+
+    public function view(string $id)
+    {
+        $this->authorize('manage_users');
+        $Category =Category::findOrFail($id);
+
+        if (!$Category) {
+         return response()->json([
+             'message' => "Category not found."
+         ], 404);
+     }
+
+        $Category->update(['status' => 'view']);
+
+        return response()->json([
+            'data' => new CategoryResource($Category),
+            'message' => 'Category has been view.'
+        ]);
+    }
+
+    public function notView(string $id)
+    {
+        $this->authorize('manage_users');
+        $Category =Category::findOrFail($id);
+
+        if (!$Category) {
+         return response()->json([
+             'message' => "Category not found."
+         ], 404);
+     }
+
+        $Category->update(['status' => 'notView']);
+
+        return response()->json([
+            'data' => new CategoryResource($Category),
+            'message' => 'Category has been delivery.'
+        ]);
+    }
+
 
 
     }
