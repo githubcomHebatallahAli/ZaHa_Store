@@ -24,7 +24,7 @@ class HomeController extends Controller
 
     public function showAllCategory()
     {
-        $Categories = Category::get();
+        $Categories = Category::where('status', 'view')->get();
 
                   return response()->json([
                     'data' => $Categories->map(function ($Category) {
@@ -77,7 +77,7 @@ class HomeController extends Controller
     public function editCategoryWithProducts(string $id)
     {
 
-$category = Category::with('products')
+$category = Category::where('status', 'view')->with('products')
 ->withCount('products')->find($id);
 
         if (!$category) {
