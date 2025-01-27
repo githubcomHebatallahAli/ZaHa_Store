@@ -19,7 +19,8 @@ class CategoryResource extends JsonResource
             'name' => $this -> name,
             'productsCount' => $this->productsCount,
             'image' => $this -> image,
-            'status' => $this -> status
+            'status' => $this -> status,
+            'products' => ProductResource::collection($this->products),
         ];
     }
 }
