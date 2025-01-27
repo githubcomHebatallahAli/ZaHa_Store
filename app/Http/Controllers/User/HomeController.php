@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\Code;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Newproduct;
@@ -91,6 +92,28 @@ $category = Category::where('status', 'view')->with('products')
             'message' => "Edit Category With products By ID Successfully."
         ]);
     }
+
+
+    public function showAllCodes()
+    {
+        $Codes = Code::where('status', 'active')->get();
+        return response()->json([
+            'data' =>$Codes->map(function ($Code) {
+                return  [
+                'id' => $Code->id,
+                'code' => $Code->code,
+                'discount' => $Code->type === 'percentage'
+                    ? number_format($Code->discount, 2) . '%'
+                    : ($Code->type === 'pounds'
+                        ? number_format($Code->discount, 2)
+                        : null),
+                    ];
+                }),
+            'message' => "Show All Codes Successfully."
+        ]);
+
+    }
+
 
 
 }

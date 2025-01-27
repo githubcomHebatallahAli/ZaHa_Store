@@ -15,5 +15,6 @@ Route::controller(HomeController::class)->group(
         // ==========================================
 
         Route::get('/edit/category/with/products/{id}', 'editCategoryWithProducts');
+        Route::get('/showAll/codes', 'showAllCodes');
 
     });
