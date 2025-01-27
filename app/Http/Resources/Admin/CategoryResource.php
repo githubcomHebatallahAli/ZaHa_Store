@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource
             'productsCount' => $this->productsCount,
             'image' => $this -> image,
             'status' => $this -> status,
-            'products' => ProductResource::collection($this->products),
+            // 'products' => ProductResource::collection($this->products),
         ];
     }
 }
