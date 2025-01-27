@@ -20,10 +20,10 @@ class ShowAllProductResource extends JsonResource
             "name" => $this -> name ,
             'categoryName' => $this->category->name ?? null,
             'quantity' => $this -> quantity,
+            'priceBeforeDiscount'=>$this->priceBeforeDiscount,
+            'discount' => $this->discount ? number_format($this->discount, 2) . '%' : null,
             "sellingPrice" => $this -> sellingPrice,
             "purchesPrice" => $this -> purchesPrice,
-
-
         ];
     }
 }
