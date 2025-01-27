@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
+use App\Http\Resources\Admin\CategoryProductResource;
 
 class CategoryController extends Controller
 {
@@ -68,7 +69,7 @@ class CategoryController extends Controller
         public function edit(string $id)
         {
             $this->authorize('manage_users');
-  $category = Category::withCount('products')->find($id);
+  $category = Category::withCount('products')->with('products')->find($id);
 
             if (!$category) {
                 return response()->json([
@@ -77,8 +78,8 @@ class CategoryController extends Controller
             }
 
             return response()->json([
-                'data' => new CategoryResource($category),
-                'message' => "Edit Category By ID Successfully."
+                'data' => new CategoryProductResource($category),
+                'message' => "Edit Category With Products By ID Successfully."
             ]);
         }
 
