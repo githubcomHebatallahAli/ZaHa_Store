@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Newproduct;
 use App\Models\Premproduct;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\ProductResource;
 use App\Http\Resources\User\ProductUserResource;
 use App\Http\Resources\User\CategoryWithProductsResource;
 
@@ -112,6 +113,32 @@ $category = Category::where('status', 'view')->with('products')
             'message' => "Show All Codes Successfully."
         ]);
 
+    }
+
+    public function editProduct(string $id)
+    {
+        $Product = Product::find($id);
+        if (!$Product) {
+            return response()->json([
+                'message' => "Product not found."
+            ], 404);
+        }
+
+        return response()->json([
+            'data' =>  [
+                'id' => $Product->id,
+                'image' => $Product->image,
+                'name' => $Product->name,
+                'priceBeforeDiscount'=>$Product->priceBeforeDiscount,
+                'discount'=>$Product->discount,
+                'sellingPrice' => $Product->sellingPrice,
+                'category' => [ 
+                    'id' => $Product->category->id,
+                    'name' => $Product->category->name,
+                ]
+            ],
+            'message' => "Edit Product By ID Successfully."
+        ]);
     }
 
 

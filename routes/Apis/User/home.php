@@ -12,9 +12,11 @@ Route::controller(HomeController::class)->group(
         Route::get('/showAll/category', 'showAllCategory');
         Route::get('/showAll/new/product', 'showAllNewProduct');
         Route::get('/showAll/premium/product', 'showAllPremProduct');
+        Route::get('/showAll/codes', 'showAllCodes');
         // ==========================================
 
         Route::get('/edit/category/with/products/{id}', 'editCategoryWithProducts');
-        Route::get('/showAll/codes', 'showAllCodes');
+        Route::get('edit/product/{id}', 'editProduct');
+
 
     });
