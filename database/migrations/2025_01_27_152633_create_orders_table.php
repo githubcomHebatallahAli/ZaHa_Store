@@ -16,14 +16,15 @@ return new class extends Migration
             $table->string('name');
             $table->string('phoNum');
             $table->string('address');
-            $table->string('details');
+            $table->string('details')->nullable();
             $table->unsignedBigInteger('orderProductCount')->default(0);
             $table->decimal('totalPrice', 15, 2)->default(0);
             $table->decimal('discount', 10, 2)->nullable();
-            $table->decimal('shippingCost', 10, 2)->nullable();
+            $table->decimal('shippingCost', 10, 2);
             $table->decimal('finalPrice', 10, 2)->nullable();
             $table->decimal('profit', 10, 2)->nullable();
             $table->enum('status', ['pending', 'compeleted'])->default('pending')->nullable();
+            $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

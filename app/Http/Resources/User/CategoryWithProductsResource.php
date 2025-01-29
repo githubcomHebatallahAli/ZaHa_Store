@@ -20,6 +20,7 @@ class CategoryWithProductsResource extends JsonResource
             'productsCount' => $this->products_count,
             'products' => $this->products->map(function ($product) {
                 return [
+                    'id'=> $product-> id,
                     'image' => $product->image,
                     'name' => $product->name,
                     'priceBeforeDiscount'=>$product->priceBeforeDiscount,

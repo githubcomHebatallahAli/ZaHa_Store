@@ -10,8 +10,18 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'name', 'phoNum', 'address', 'details', 'orderProductCount',
-        'totalPrice', 'discount', 'shippingCost', 'finalPrice', 'profit'
+        'name',
+        'phoNum',
+        'address',
+        'details',
+        'orderProductCount',
+        'totalPrice',
+        'discount',
+        'shippingCost',
+        'finalPrice',
+        'profit',
+        'status',
+        'creationDate'
     ];
 
 
@@ -20,5 +30,49 @@ class Order extends Model
         return $this->belongsToMany(Product::class, 'order_products')
                     ->withPivot('quantity', 'total','profit')
                     ->withTimestamps();
+    }
+
+    protected static function booted()
+    {
+
+        static::created(function ($order) {
+            $order->load('products');
+            $order->updateOrderProductCount();
+        });
+
+        static::deleted(function ($order) {
+            if (method_exists($order, 'isForceDeleting') && $order->isForceDeleting()) {
+                return;
+            }
+
+            if (!$order->trashed()) {
+                $order->updateOrderProductCount();
+            }
+        });
+
+    }
+
+    public function calculateTotalPrice()
+    {
+        $total = 0;
+
+        foreach ($this->products as $product) {
+            $total += $product->pivot->total;
+        }
+
+        return $total;
+    }
+
+    public function updateOrderProductCount()
+    {
+        $this->orderProductCount = $this->products()
+        ->whereNull('deleted_at')
+        ->count();
+        $this->saveQuietly();
+    }
+
+    public function getOrderProductCountAttribute()
+    {
+        return $this->attributes['orderProductCount'] ?? 0;
     }
 }
