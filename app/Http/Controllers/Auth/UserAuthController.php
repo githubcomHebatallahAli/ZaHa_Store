@@ -13,7 +13,6 @@ use App\Http\Resources\Auth\UserRegisterResource;
 
 class UserAuthController extends Controller
 {
-
     public function login(LoginRequest $request)
     {
         $validator = Validator::make($request->all(), $request->rules());
@@ -60,11 +59,11 @@ class UserAuthController extends Controller
 
         $user = User::create($userData);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('user', 'public');
-            $user->image()->create(['path' => $path]);
-        }
-        $user->load('image');
+        // if ($request->hasFile('image')) {
+        //     $path = $request->file('image')->store('user', 'public');
+        //     $user->image()->create(['path' => $path]);
+        // }
+        // $user->load('image');
 
         return response()->json([
             'message' => 'User registration successful.',
@@ -119,7 +118,6 @@ class UserAuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->guard('api')->factory()->getTTL() * 60,
             'user' => auth()->guard('api')->user(),
-
         ]);
     }
 }

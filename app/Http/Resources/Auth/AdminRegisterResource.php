@@ -24,7 +24,6 @@ class AdminRegisterResource extends JsonResource
             'phoNum' => $this -> phoNum ,
             'status' => $this -> status,
             'address' => $this -> address,
-            'image' => new ImageResource($this->whenLoaded('image')),
         ];
     }
 }

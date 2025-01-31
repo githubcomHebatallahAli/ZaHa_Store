@@ -23,7 +23,7 @@ class Admin extends Authenticatable  implements JWTSubject
         'last_login_at',
         'last_logout_at',
         'session_duration',
-        
+
     ];
 
 
@@ -32,21 +32,12 @@ class Admin extends Authenticatable  implements JWTSubject
         return $this->belongsTo(Role::class);
     }
 
-    public function image()
-    {
-        return $this->morphOne(Image::class, 'imageable');
-    }
-
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+
     protected function casts(): array
     {
         return [

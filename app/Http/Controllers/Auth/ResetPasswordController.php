@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\Broker;
 use Ichtrojan\Otp\Otp;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\ResetPasswordRequest;

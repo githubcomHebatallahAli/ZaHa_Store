@@ -77,8 +77,8 @@ class OrderController extends Controller
     $formattedshippingCost = number_format($shippingCost, 2, '.', '');
 
     $Order->update([
-        'totalInvoicePrice' => $formattedTotalSellingPrice,
-        'invoiceAfterDiscount' => $formattedFinalPrice,
+        'totalPrice' => $formattedTotalSellingPrice,
+        'finalPrice' => $formattedFinalPrice,
         'profit' => $formattedNetProfit,
     ]);
 
@@ -90,12 +90,12 @@ class OrderController extends Controller
     }
 
     return response()->json([
-        'message' => 'Invoice created successfully',
-        'invoice' => new OrderResource($Order->load('products')),
-        'extraAmount' => $formattedshippingCost,
-        'totalInvoicePrice' => $formattedTotalSellingPrice,
+        'message' => 'Order created successfully',
+        'order' => new OrderResource($Order->load('products')),
+        'shippingCost' => $formattedshippingCost,
+        'totalPrice' => $formattedTotalSellingPrice,
         'discount' => $formattedDiscount,
-        'invoiceAfterDiscount' => $formattedFinalPrice,
+        'finalPrice' => $formattedFinalPrice,
         'warning' => $warningMessage,
     ]);
 }
