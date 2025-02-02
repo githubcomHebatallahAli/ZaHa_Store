@@ -123,12 +123,9 @@ public function updateCartItem(CartProductRequest $request, $id)
 
 
 
-public function removeCartItem($id)
+public function removeCartItem(Request $request)
 {
-    $currentUser = auth()->guard('api')->user();
-    if (!$currentUser) {
-        $currentUser = auth()->guard('admin')->user();
-    }
+    $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
 
     if (!$currentUser) {
         return response()->json([
@@ -136,7 +133,26 @@ public function removeCartItem($id)
         ], 401);
     }
 
-    $cartProduct = CartProduct::findOrFail($id);
+    // التحقق من وجود cart_id و product_id في الطلب
+    $cartId = $request->input('cart_id');
+    $productId = $request->input('product_id');
+
+    if (!$cartId || !$productId) {
+        return response()->json([
+            'message' => 'cart_id and product_id are required'
+        ], 422);
+    }
+
+    // البحث عن المنتج داخل السلة
+    $cartProduct = CartProduct::where('cart_id', $cartId)
+                              ->where('product_id', $productId)
+                              ->first();
+
+    if (!$cartProduct) {
+        return response()->json([
+            'message' => 'Cart product not found'
+        ], 404);
+    }
 
     // جلب بيانات السلة الخاصة بالمنتج
     $cart = Cart::where('id', $cartProduct->cart_id)
@@ -159,6 +175,7 @@ public function removeCartItem($id)
         }
     }
 
+    // حذف المنتج من السلة
     $cartProduct->delete();
 
     return response()->json([
@@ -166,6 +183,8 @@ public function removeCartItem($id)
         'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
     ]);
 }
+
+
 
 
 }
