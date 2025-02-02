@@ -72,12 +72,8 @@ class UserAuthController extends Controller
         ], 201);
     }
 
-
-
-
     public function logout()
 {
-
     $user = auth()->guard('api')->user();
 
     if ($user->last_login_at) {

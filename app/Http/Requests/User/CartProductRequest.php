@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\EmailExistsInUsersOrAdminsRule;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
-class ResetPasswordRequest extends FormRequest
+class CartProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +24,9 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required','email',new EmailExistsInUsersOrAdminsRule()],
-            'otp' =>['required','max:6'],
-            'password' =>['required','min:6']
+        'products' => 'required|array',
+        'products.*.product_id' => 'required|exists:products,id',
+        'products.*.quantity' => 'required|integer|min:1',
         ];
     }
 

@@ -23,6 +23,11 @@ class User extends Authenticatable implements JWTSubject
         'session_duration',
     ];
 
+    public function carts()
+{
+    return $this->hasMany(Cart::class);
+}
+
     protected $hidden = [
         'password',
         'remember_token',

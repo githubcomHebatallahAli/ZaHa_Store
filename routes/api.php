@@ -18,5 +18,6 @@ require __DIR__ . '/Apis/Admin/premProduct.php';
 require __DIR__ . '/Apis/Admin/code.php';
 require __DIR__ . '/Apis/User/contact.php';
 require __DIR__ . '/Apis/User/home.php';
+require __DIR__ . '/Apis/User/cartProduct.php';
 
 

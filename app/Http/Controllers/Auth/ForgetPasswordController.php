@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\Broker;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Notifications\ResetPasswordNotification;
 use App\Http\Requests\Auth\ForgetPasswordRequest;
