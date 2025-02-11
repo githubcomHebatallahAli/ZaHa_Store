@@ -13,36 +13,75 @@ use App\Http\Requests\Admin\UpdatePaidAmountRequest;
 
 class DeptController extends Controller
 {
+    // public function showAll()
+    // {
+    //     $this->authorize('manage_users');
+
+    //     $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
+    //     return response()->json([
+    //         'data' => $depts->map(function ($dept) {
+    //             return [
+    //                 'id' => $dept->id,
+    //                 'customerName' => $dept->customerName,
+    //                 'status' => $dept->status,
+    //                 'paidAmount' => $dept->paidAmount,
+    //                 'remainingAmount' => $dept->remainingAmount,
+    //                 'depetAfterDiscount' => $dept->depetAfterDiscount,
+    //                 'creationDate' => $dept->creationDate,
+    //             ];
+    //         }),
+    //         'pagination' => [
+    //             'total' => $depts->total(),
+    //             'count' => $depts->count(),
+    //             'per_page' => $depts->perPage(),
+    //             'current_page' => $depts->currentPage(),
+    //             'total_pages' => $depts->lastPage(),
+    //             'next_page_url' => $depts->nextPageUrl(),
+    //             'prev_page_url' => $depts->previousPageUrl(),
+    //         ],
+    //         'message' => "Show All Depts Successfully."
+    //     ]);
+    // }
+
     public function showAll()
-    {
-        $this->authorize('manage_users');
+{
+    $this->authorize('manage_users');
 
-        $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
+    $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
 
-        return response()->json([
-            'data' => $depts->map(function ($dept) {
-                return [
-                    'id' => $dept->id,
-                    'customerName' => $dept->customerName,
-                    'status' => $dept->status,
-                    'paidAmount' => $dept->paidAmount,
-                    'remainingAmount' => $dept->remainingAmount,
-                    'depetAfterDiscount' => $dept->depetAfterDiscount,
-                    'creationDate' => $dept->creationDate,
-                ];
-            }),
-            'pagination' => [
-                'total' => $depts->total(),
-                'count' => $depts->count(),
-                'per_page' => $depts->perPage(),
-                'current_page' => $depts->currentPage(),
-                'total_pages' => $depts->lastPage(),
-                'next_page_url' => $depts->nextPageUrl(),
-                'prev_page_url' => $depts->previousPageUrl(),
-            ],
-            'message' => "Show All Depts Successfully."
-        ]);
-    }
+    // حساب الإحصائيات
+    $paidAmount = Dept::sum('paidAmount');
+    $remainingAmount = Dept::sum('remainingAmount');
+
+    return response()->json([
+        'data' => $depts->map(function ($dept) {
+            return [
+                'id' => $dept->id,
+                'customerName' => $dept->customerName,
+                'status' => $dept->status,
+                'paidAmount' => $dept->paidAmount,
+                'remainingAmount' => $dept->remainingAmount,
+                'depetAfterDiscount' => $dept->depetAfterDiscount,
+                'creationDate' => $dept->creationDate,
+            ];
+        }),
+        'pagination' => [
+            'total' => $depts->total(),
+            'count' => $depts->count(),
+            'per_page' => $depts->perPage(),
+            'current_page' => $depts->currentPage(),
+            'total_pages' => $depts->lastPage(),
+            'next_page_url' => $depts->nextPageUrl(),
+            'prev_page_url' => $depts->previousPageUrl(),
+        ],
+        'statistics' => [
+            'paid_amount' => $paidAmount,
+            'remaining_amount' => $remainingAmount,
+        ],
+        'message' => "Show All Depts Successfully."
+    ]);
+}
+
 
     public function create(DeptRequest $request)
     {

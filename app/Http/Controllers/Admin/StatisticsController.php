@@ -18,8 +18,8 @@ class StatisticsController extends Controller
         $categoriesCount = Category::count();
         $invoicesCount = Invoice::count();
         $sales = Invoice::sum('invoiceAfterDiscount');
-        $paidAmount = Dept::sum('paidAmount');
-        $remainingAmount = Dept::sum('remainingAmount');
+        // $paidAmount = Dept::sum('paidAmount');
+        // $remainingAmount = Dept::sum('remainingAmount');
         $netProfit = Invoice::sum('profit');
         $totalWithdrawals = Withdraw::sum('withdrawnAmount');
         $availableWithdrawal = $sales - $totalWithdrawals;
@@ -29,8 +29,8 @@ class StatisticsController extends Controller
             'Categories_count' => $categoriesCount,
             'Products_count' => $productsCount,
             'Invoices_count' => $invoicesCount,
-            'paid_amount' =>$paidAmount,
-            'remaining_amount'=>$remainingAmount,
+            // 'paid_amount' =>$paidAmount,
+            // 'remaining_amount'=>$remainingAmount,
             'Sales' => $sales,
             'Net_Profit' => $netProfit,
             'Available_Withdrawal' => $availableWithdrawal,
