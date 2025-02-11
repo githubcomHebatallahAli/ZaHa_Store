@@ -44,8 +44,6 @@ class DeptController extends Controller
         ]);
     }
 
-
-
     public function create(DeptRequest $request)
     {
         $this->authorize('manage_users');
@@ -141,21 +139,16 @@ class DeptController extends Controller
     }
 
 
-
-
 public function updatePaidAmount(UpdatePaidAmountRequest $request, $id)
 {
     $this->authorize('manage_users');
     $Dept = Dept::findOrFail($id);
 
-    // تحديث المبلغ المدفوع
     $paidAmount = $request->paidAmount;
     $Dept->paidAmount += $paidAmount;
 
-    // حساب المبلغ المتبقي
     $remainingAmount = $Dept->depetAfterDiscount - $Dept->paidAmount;
 
-    // تحديث البيانات
     $Dept->remainingAmount = number_format($remainingAmount, 2, '.', '');
     $Dept->status = $remainingAmount > 0 ? 'pending' : 'paid';
     $Dept->save();
@@ -173,11 +166,63 @@ public function updatePaidAmount(UpdatePaidAmountRequest $request, $id)
 }
 
 
+public function edit(string $id)
+{
+    $this->authorize('manage_users');
 
+    $dept = Dept::with('products')->find($id);
 
+    if (!$dept) {
+        return response()->json([
+            'message' => "Dept record not found."
+        ], 404);
+    }
 
+    $totalDeptPrice = 0;
+    $extraAmount = $dept->extraAmount ?? 0;
+    $paidAmount = $dept->paidAmount ?? 0;
+    $discount = $dept->discount ?? 0;
 
+    // **حساب إجمالي الديون بناءً على المنتجات المرتبطة**
+    if ($dept->products->isNotEmpty()) {
+        foreach ($dept->products as $product) {
+            $totalDeptPrice += $product->pivot->total;
+        }
+    }
 
+    // **إضافة المبلغ الإضافي إلى إجمالي الديون**
+    $totalDeptPrice += $extraAmount;
+
+    // **حساب القيم المطلوبة**
+    $remainingAmount = max(0, $totalDeptPrice - $paidAmount);
+    $deptAfterDiscount = $totalDeptPrice - $discount;
+
+    // **تنسيق القيم**
+    $formattedPaidAmount = number_format($paidAmount, 2, '.', '');
+    $formattedTotalDeptPrice = number_format($totalDeptPrice, 2, '.', '');
+    $formattedRemainingAmount = number_format($remainingAmount, 2, '.', '');
+    $formattedDeptAfterDiscount = number_format($deptAfterDiscount, 2, '.', '');
+    $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
+    $formattedDiscount = number_format($discount, 2, '.', '');
+
+    // **تحديث جدول `dept`**
+    $dept->update([
+        'totalDepetPrice' => $formattedTotalDeptPrice,  // ✅ تصحيح الاسم
+        'remainingAmount' => $formattedRemainingAmount,
+        'depetAfterDiscount' => $formattedDeptAfterDiscount,  // ✅ تصحيح الاسم
+    ]);
+
+    return response()->json([
+        'message' => 'Dept details fetched successfully',
+        'dept' => new DeptResource($dept->load('products')),
+        'extraAmount' => $formattedExtraAmount,
+        'totalDeptPrice' => $formattedTotalDeptPrice,
+        'discount' => $formattedDiscount,
+        'deptAfterDiscount' => $formattedDeptAfterDiscount,
+        'paidAmount' => $formattedPaidAmount,
+        'remainingAmount' => $formattedRemainingAmount,
+    ]);
+}
 
 
 }

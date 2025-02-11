@@ -133,7 +133,6 @@ public function create(InvoiceRequest $request)
     {
         $this->authorize('manage_users');
 
-        // استرجاع الفاتورة مع المنتجات المرتبطة بها
         $Invoice = Invoice::with('products')->find($id);
 
         if (!$Invoice) {
@@ -144,12 +143,11 @@ public function create(InvoiceRequest $request)
 
         $totalProfit = 0;
         $totalSellingPrice = 0;
-        $extraAmount = $Invoice->extraAmount ?? 0;   // يمكن تحديد قيمة افتراضية للمبلغ الإضافي في حال كان مطلوبًا
+        $extraAmount = $Invoice->extraAmount ?? 0;
 
-        // التحقق من وجود منتجات في الفاتورة وتحديث الكميات إذا لزم الأمر
         if ($Invoice->products->isNotEmpty()) {
             foreach ($Invoice->products as $product) {
-                $totalSellingPriceForProduct = $product->pivot->total; // الحصول على إجمالي سعر المنتج
+                $totalSellingPriceForProduct = $product->pivot->total;
                 $totalSellingPrice += $totalSellingPriceForProduct;
 
                 $profitForProduct = ($product->sellingPrice - $product->purchesPrice) * $product->pivot->quantity;
@@ -157,27 +155,23 @@ public function create(InvoiceRequest $request)
             }
         }
 
-        // حساب السعر النهائي بعد الخصم
         $discount = $Invoice->discount ?? 0;
         $totalSellingPrice += $extraAmount;
         $finalPrice = $totalSellingPrice - $discount;
         $netProfit = $totalProfit - $discount;
 
-        // تنسيق الأسعار
         $formattedTotalSellingPrice = number_format($totalSellingPrice, 2, '.', '');
         $formattedFinalPrice = number_format($finalPrice, 2, '.', '');
         $formattedNetProfit = number_format($netProfit, 2, '.', '');
         $formattedDiscount = number_format($discount, 2, '.', '');
         $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
 
-        // تحديث الفاتورة
         $Invoice->update([
             'totalInvoicePrice' => $formattedTotalSellingPrice,
             'invoiceAfterDiscount' => $formattedFinalPrice,
             'profit' => $formattedNetProfit,
         ]);
 
-        // إعادة البيانات في الـ response
         return response()->json([
             'message' => 'Invoice details fetched successfully',
             'invoice' => new InvoiceResource($Invoice->load('products')),
@@ -185,9 +179,12 @@ public function create(InvoiceRequest $request)
             'totalInvoicePrice' => $formattedTotalSellingPrice,
             'discount' => $formattedDiscount,
             'invoiceAfterDiscount' => $formattedFinalPrice,
-            'warning' => null,  // إضافة تحذير إذا لزم الأمر
+            'warning' => null,
         ]);
     }
+
+
+
 
 
 
