@@ -48,8 +48,6 @@ class DeptController extends Controller
     $this->authorize('manage_users');
 
     $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
-
-    // حساب الإحصائيات
     $paidAmount = Dept::sum('paidAmount');
     $remainingAmount = Dept::sum('remainingAmount');
 
@@ -81,7 +79,6 @@ class DeptController extends Controller
         'message' => "Show All Depts Successfully."
     ]);
 }
-
 
     public function create(DeptRequest $request)
     {

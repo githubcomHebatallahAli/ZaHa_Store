@@ -11,32 +11,65 @@ use App\Http\Controllers\Controller;
 
 class StatisticsController extends Controller
 {
+    // public function showStatistics()
+    // {
+    //     $this->authorize('manage_users');
+    //     $productsCount = Product::count();
+    //     $categoriesCount = Category::count();
+    //     $invoicesCount = Invoice::count();
+    //     $sales = Invoice::sum('invoiceAfterDiscount');
+    //     $netProfit = Invoice::sum('profit');
+    //     $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+    //     $availableWithdrawal = $sales - $totalWithdrawals;
+
+
+    //     $statistics = [
+    //         'Categories_count' => $categoriesCount,
+    //         'Products_count' => $productsCount,
+    //         'Invoices_count' => $invoicesCount,
+    //         'Sales' => $sales,
+    //         'Net_Profit' => $netProfit,
+    //         'Available_Withdrawal' => $availableWithdrawal,
+
+    //     ];
+
+    //     return response()->json($statistics);
+    // }
+
     public function showStatistics()
-    {
-        $this->authorize('manage_users');
-        $productsCount = Product::count();
-        $categoriesCount = Category::count();
-        $invoicesCount = Invoice::count();
-        $sales = Invoice::sum('invoiceAfterDiscount');
-        // $paidAmount = Dept::sum('paidAmount');
-        // $remainingAmount = Dept::sum('remainingAmount');
-        $netProfit = Invoice::sum('profit');
-        $totalWithdrawals = Withdraw::sum('withdrawnAmount');
-        $availableWithdrawal = $sales - $totalWithdrawals;
+{
+    $this->authorize('manage_users');
 
+    $productsCount = Product::count();
+    $categoriesCount = Category::count();
+    $invoicesCount = Invoice::count();
 
-        $statistics = [
-            'Categories_count' => $categoriesCount,
-            'Products_count' => $productsCount,
-            'Invoices_count' => $invoicesCount,
-            // 'paid_amount' =>$paidAmount,
-            // 'remaining_amount'=>$remainingAmount,
-            'Sales' => $sales,
-            'Net_Profit' => $netProfit,
-            'Available_Withdrawal' => $availableWithdrawal,
+    // حساب إجمالي المبيعات
+    $salesFromInvoices = Invoice::sum('invoiceAfterDiscount');
+    $salesFromDepts = Dept::where('status', 'paid')->sum('depetAfterDiscount');
+    $totalSales = $salesFromInvoices + $salesFromDepts;
 
-        ];
+    // حساب صافي الربح
+    $profitFromInvoices = Invoice::sum('profit');
+    $profitFromDepts = Dept::where('status', 'paid')->sum('profit'); // تأكد من وجود عمود 'profit' في جدول Dept
+    $netProfit = $profitFromInvoices + $profitFromDepts;
 
-        return response()->json($statistics);
-    }
+    // إجمالي المبالغ المسحوبة
+    $totalWithdrawals = Withdraw::sum('withdrawnAmount');
+
+    // المبلغ المتاح للسحب
+    $availableWithdrawal = $totalSales - $totalWithdrawals;
+
+    $statistics = [
+        'Categories_count' => $categoriesCount,
+        'Products_count' => $productsCount,
+        'Invoices_count' => $invoicesCount,
+        'Sales' => $totalSales,
+        'Net_Profit' => $netProfit,
+        'Available_Withdrawal' => $availableWithdrawal,
+    ];
+
+    return response()->json($statistics);
+}
+
 }
