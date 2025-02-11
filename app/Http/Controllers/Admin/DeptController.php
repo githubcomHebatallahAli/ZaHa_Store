@@ -40,7 +40,7 @@ class DeptController extends Controller
                 'next_page_url' => $depts->nextPageUrl(),
                 'prev_page_url' => $depts->previousPageUrl(),
             ],
-            'message' => "Show All Invoices Successfully."
+            'message' => "Show All Depts Successfully."
         ]);
     }
 
@@ -183,21 +183,17 @@ public function edit(string $id)
     $paidAmount = $dept->paidAmount ?? 0;
     $discount = $dept->discount ?? 0;
 
-    // **حساب إجمالي الديون بناءً على المنتجات المرتبطة**
     if ($dept->products->isNotEmpty()) {
         foreach ($dept->products as $product) {
             $totalDeptPrice += $product->pivot->total;
         }
     }
 
-    // **إضافة المبلغ الإضافي إلى إجمالي الديون**
     $totalDeptPrice += $extraAmount;
 
-    // **حساب القيم المطلوبة**
     $remainingAmount = max(0, $totalDeptPrice - $paidAmount);
     $deptAfterDiscount = $totalDeptPrice - $discount;
 
-    // **تنسيق القيم**
     $formattedPaidAmount = number_format($paidAmount, 2, '.', '');
     $formattedTotalDeptPrice = number_format($totalDeptPrice, 2, '.', '');
     $formattedRemainingAmount = number_format($remainingAmount, 2, '.', '');
@@ -205,11 +201,10 @@ public function edit(string $id)
     $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
     $formattedDiscount = number_format($discount, 2, '.', '');
 
-    // **تحديث جدول `dept`**
     $dept->update([
-        'totalDepetPrice' => $formattedTotalDeptPrice,  // ✅ تصحيح الاسم
+        'totalDepetPrice' => $formattedTotalDeptPrice,
         'remainingAmount' => $formattedRemainingAmount,
-        'depetAfterDiscount' => $formattedDeptAfterDiscount,  // ✅ تصحيح الاسم
+        'depetAfterDiscount' => $formattedDeptAfterDiscount,
     ]);
 
     return response()->json([
@@ -222,6 +217,164 @@ public function edit(string $id)
         'paidAmount' => $formattedPaidAmount,
         'remainingAmount' => $formattedRemainingAmount,
     ]);
+}
+
+public function update(DeptRequest $request, string $id)
+{
+    $this->authorize('manage_users');
+
+    $Dept = Dept::findOrFail($id);
+
+    if (!$Dept) {
+        return response()->json(['message' => "Dept not found."], 404);
+    }
+
+    // استرجاع المنتجات السابقة مع الكميات المرتبطة بها
+    $previousProducts = $Dept->products()
+        ->select('products.id', 'dept_products.quantity')
+        ->pluck('dept_products.quantity', 'products.id')
+        ->toArray();
+
+    // تحديث بيانات الدين
+    $Dept->update([
+        "customerName" => $request->customerName,
+        "sellerName" => $request->sellerName,
+        "discount" => $request->discount ?? 0,
+        "extraAmount" => $request->extraAmount ?? 0,
+        'creationDate' => now()->timezone('Africa/Cairo')->format('Y-m-d H:i:s'),
+        'paidAmount' => $request->paidAmount ?? 0,
+    ]);
+
+    $totalProfit = 0;
+    $totalDeptPrice = 0;
+    $extraAmount = $request->extraAmount ?? 0;
+    $outOfStockProducts = [];
+    $productsData = [];
+    $errors = [];
+
+    if ($request->has('products')) {
+        foreach ($request->products as $product) {
+            $productModel = Product::find($product['id']);
+            $previousQuantity = $previousProducts[$product['id']] ?? 0;
+            $newQuantity = $product['quantity'];
+
+            if ($newQuantity > $previousQuantity) {
+                $difference = $newQuantity - $previousQuantity;
+
+                if ($difference > $productModel->quantity) {
+                    $errors[] = "Not enough quantity for product '{$productModel->name}'. Available: {$productModel->quantity}.";
+                    continue;
+                }
+
+                $productModel->decrement('quantity', $difference);
+            } elseif ($newQuantity < $previousQuantity) {
+                $difference = $previousQuantity - $newQuantity;
+                $productModel->increment('quantity', $difference);
+            }
+
+            if ($productModel->quantity === 0) {
+                $outOfStockProducts[] = $productModel->name;
+            }
+
+            $totalDeptPriceForProduct = $productModel->sellingPrice * $newQuantity;
+            $totalDeptPrice += $totalDeptPriceForProduct;
+
+            $profitForProduct = ($productModel->sellingPrice - $productModel->purchesPrice) * $newQuantity;
+            $totalProfit += $profitForProduct;
+
+            $productsData[$product['id']] = [
+                'quantity' => $newQuantity,
+                'total' => $totalDeptPriceForProduct,
+                'profit' => $profitForProduct,
+            ];
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message' => 'Some errors occurred while processing the dept update.',
+                'errors' => $errors,
+            ], 400);
+        }
+
+        $Dept->products()->sync($productsData);
+    }
+
+    $discount = $Dept->discount ?? 0;
+    $totalDeptPrice += $extraAmount;
+    $finalDeptPrice = $totalDeptPrice - $discount;
+    $netProfit = $totalProfit - $discount;
+    $remainingAmount = $finalDeptPrice - $Dept->paidAmount;
+
+    $formattedTotalDeptPrice = number_format($totalDeptPrice, 2, '.', '');
+    $formattedFinalDeptPrice = number_format($finalDeptPrice, 2, '.', '');
+    $formattedNetProfit = number_format($netProfit, 2, '.', '');
+    $formattedDiscount = number_format($discount, 2, '.', '');
+    $formattedExtraAmount = number_format($extraAmount, 2, '.', '');
+    $formattedRemainingAmount = number_format($remainingAmount, 2, '.', '');
+
+    $Dept->update([
+        'totalDepetPrice' => $formattedTotalDeptPrice,
+        'depetAfterDiscount' => $formattedFinalDeptPrice,
+        'profit' => $formattedNetProfit,
+        'remainingAmount' => $formattedRemainingAmount,
+        'status' => $remainingAmount > 0 ? 'pending' : 'paid',
+    ]);
+
+    $Dept->updateDeptProductCount();
+
+    $warningMessage = !empty($outOfStockProducts)
+        ? "The following products are now out of stock: " . implode(', ', $outOfStockProducts)
+        : null;
+
+    return response()->json([
+        'message' => 'Dept record updated successfully.',
+        'dept' => new DeptResource($Dept->load('products')),
+        'extraAmount' => $formattedExtraAmount,
+        'totalDepetPrice' => $formattedTotalDeptPrice,
+        'discount' => $formattedDiscount,
+        'depetAfterDiscount' => $formattedFinalDeptPrice,
+        'paidAmount' => number_format($Dept->paidAmount, 2, '.', ''),
+        'remainingAmount' => $formattedRemainingAmount,
+        'warning' => $warningMessage,
+    ]);
+}
+
+
+public function destroy(string $id)
+{
+    return $this->destroyModel(Dept::class, DeptResource::class, $id);
+}
+
+public function showDeleted()
+{
+  $this->authorize('manage_users');
+$Depts=Dept::onlyTrashed()->get();
+return response()->json([
+  'data' =>DeptResource::collection($Depts),
+  'message' => "Show Deleted Depts Successfully."
+]);
+
+}
+
+public function restore(string $id)
+{
+ $this->authorize('manage_users');
+$Dept = Dept::withTrashed()->where('id', $id)->first();
+if (!$Dept) {
+  return response()->json([
+      'message' => "Dept not found."
+  ], 404);
+}
+$Dept->restore();
+return response()->json([
+  'data' =>new DeptResource($Dept),
+  'message' => "Restore Dept By Id Successfully."
+]);
+}
+
+public function forceDelete(string $id)
+{
+    return $this->forceDeleteModel(Dept::class, $id);
 }
 
 
