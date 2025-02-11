@@ -52,6 +52,12 @@ class Product extends Model
         ->withPivot('quantity','total','profit');
     }
 
+    public function depts()
+    {
+        return $this->belongsToMany(Dept::class ,'dept_products' )
+        ->withPivot('quantity','total','profit');
+    }
+
     public function agentInvoices()
     {
         return $this->belongsToMany(Agentinvoice::class ,'agentinvoice_products' )
@@ -78,7 +84,7 @@ class Product extends Model
     public function carts()
     {
         return $this->belongsToMany(Cart::class, 'cart_products')
-                    ->withPivot('quantity')
+                    ->withPivot('quantity','total','profit')
                     ->withTimestamps();
     }
 

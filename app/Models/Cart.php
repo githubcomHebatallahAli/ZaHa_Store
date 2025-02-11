@@ -12,7 +12,13 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'admin_id',
-        'status'
+        'status',
+        'code_id',
+        'totalPrice',
+        'discount',
+        'shippingCost',
+        'finalPrice',
+        'profit',
         ];
 
         public function user()
@@ -29,7 +35,13 @@ class Cart extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'cart_products')
-                    ->withPivot('quantity')
+                    ->withPivot('quantity', 'total','profit')
                     ->withTimestamps();
     }
+
+    public function code()
+{
+    return $this->belongsTo(Code::class, 'code_id');
+}
+
 }

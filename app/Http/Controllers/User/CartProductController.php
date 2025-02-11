@@ -88,11 +88,10 @@ public function updateCartItem(CartProductRequest $request, $id)
         ], 401);
     }
 
-    // السماح للأدمن بالوصول إلى أي سلة
     if ($currentUser->role_id == 1) {
         $cart = Cart::where('id', $id)->where('status', 'active')->first();
     } else {
-        // السماح للمستخدم فقط بتعديل سلته
+
         $cart = Cart::where('id', $id)
                     ->where(function ($query) use ($currentUser) {
                         $query->where('user_id', $currentUser->id)
@@ -120,8 +119,6 @@ public function updateCartItem(CartProductRequest $request, $id)
         'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
     ]);
 }
-
-
 
 public function removeCartItem(Request $request)
 {
@@ -175,7 +172,6 @@ public function removeCartItem(Request $request)
         }
     }
 
-    // حذف المنتج من السلة
     $cartProduct->delete();
 
     return response()->json([
@@ -183,8 +179,5 @@ public function removeCartItem(Request $request)
         'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
     ]);
 }
-
-
-
 
 }

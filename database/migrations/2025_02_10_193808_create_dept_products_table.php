@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('codes', function (Blueprint $table) {
+        Schema::create('dept_products', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->decimal('discount', 8, 2);
-            $table->enum('type', ['percentage', 'pounds'])->default('percentage');
-            $table->enum('status', ['active', 'notActive'])->default('notActive');
-            $table->softDeletes();
+            $table->foreignId('dept_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->integer('quantity');
+            $table->decimal('total', 15, 2);
+            $table->decimal('profit', 10, 2)->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('codes');
+        Schema::dropIfExists('dept_products');
     }
 };

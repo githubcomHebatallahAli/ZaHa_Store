@@ -15,4 +15,10 @@ class Code extends Model
         'type',
         'status'
     ];
+
+    public function carts()
+{
+    return $this->hasMany(Cart::class, 'code_id');
+}
+
 }
