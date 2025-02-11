@@ -13,6 +13,39 @@ use App\Http\Requests\Admin\UpdatePaidAmountRequest;
 
 class DeptController extends Controller
 {
+    public function showAll()
+    {
+        $this->authorize('manage_users');
+
+        $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
+
+        return response()->json([
+            'data' => $depts->map(function ($dept) {
+                return [
+                    'id' => $dept->id,
+                    'customerName' => $dept->customerName,
+                    'status' => $dept->status,
+                    'paidAmount' => $dept->paidAmount,
+                    'remainingAmount' => $dept->remainingAmount,
+                    'depetAfterDiscount' => $dept->depetAfterDiscount,
+                    'creationDate' => $dept->creationDate,
+                ];
+            }),
+            'pagination' => [
+                'total' => $depts->total(),
+                'count' => $depts->count(),
+                'per_page' => $depts->perPage(),
+                'current_page' => $depts->currentPage(),
+                'total_pages' => $depts->lastPage(),
+                'next_page_url' => $depts->nextPageUrl(),
+                'prev_page_url' => $depts->previousPageUrl(),
+            ],
+            'message' => "Show All Invoices Successfully."
+        ]);
+    }
+
+
+
     public function create(DeptRequest $request)
     {
         $this->authorize('manage_users');
