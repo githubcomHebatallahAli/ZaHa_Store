@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Dept;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Category;
@@ -17,17 +18,19 @@ class StatisticsController extends Controller
         $categoriesCount = Category::count();
         $invoicesCount = Invoice::count();
         $sales = Invoice::sum('invoiceAfterDiscount');
+        $paidAmount = Dept::sum('paidAmount');
+        $remainingAmount = Dept::sum('remainingAmount');
         $netProfit = Invoice::sum('profit');
-        $totalWithdrawals = Withdraw::sum('withdrawnAmount'); // إجمالي السحوبات
+        $totalWithdrawals = Withdraw::sum('withdrawnAmount');
         $availableWithdrawal = $sales - $totalWithdrawals;
-
-
 
 
         $statistics = [
             'Categories_count' => $categoriesCount,
             'Products_count' => $productsCount,
             'Invoices_count' => $invoicesCount,
+            'paid_amount' =>$paidAmount,
+            'remaining_amount'=>$remainingAmount,
             'Sales' => $sales,
             'Net_Profit' => $netProfit,
             'Available_Withdrawal' => $availableWithdrawal,

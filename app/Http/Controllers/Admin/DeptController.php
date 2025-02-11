@@ -339,7 +339,6 @@ public function update(DeptRequest $request, string $id)
     ]);
 }
 
-
 public function destroy(string $id)
 {
     return $this->destroyModel(Dept::class, DeptResource::class, $id);
