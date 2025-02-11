@@ -29,7 +29,9 @@ class PremProductController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Product = Premproduct::paginate(10);
+        // $Product = Premproduct::paginate(10);
+
+        $Product = Premproduct::orderBy('created_at', 'desc')->paginate(10);
 
         return response()->json([
             'data' => MainShowAllProductResource::collection($Product),

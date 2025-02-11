@@ -18,7 +18,7 @@ class AgentInvoiceController extends Controller
     {
         $this->authorize('manage_users');
 
-        $AgentInvoices = Agentinvoice::paginate(10);
+        $AgentInvoices = Agentinvoice::orderBy('created_at', 'desc')->paginate(10);
         return response()->json([
             'data' => $AgentInvoices->map(function ($AgentInvoice) {
                 return [

@@ -17,7 +17,8 @@ class CategoryController extends Controller
     {
         $this->authorize('manage_users');
 
-        $category = Category::withCount('products')->paginate(10);
+        // $category = Category::withCount('products')->paginate(10);
+        $category = Category::withCount('products')->orderBy('created_at', 'desc')->paginate(10);
 
                   return response()->json([
                       'data' =>  CategoryResource::collection($category),

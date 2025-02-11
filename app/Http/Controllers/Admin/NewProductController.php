@@ -28,7 +28,8 @@ class NewproductController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Product = Newproduct::paginate(10);
+        // $Product = Newproduct::paginate(10);
+        $Product = Newproduct::orderBy('created_at', 'desc')->paginate(10);
 
         return response()->json([
             'data' => MainShowAllProductResource::collection($Product),

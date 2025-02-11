@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\Shipment;
-use Illuminate\Http\Request;
 use App\Traits\ManagesModelsTrait;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ShipmentRequest;
 use App\Http\Resources\Admin\ShipmentResource;
@@ -19,7 +17,9 @@ class ShipmentController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Shipment = Shipment::paginate(10);
+        // $Shipment = Shipment::paginate(10);
+
+        $Shipment = Shipment::orderBy('created_at', 'desc')->paginate(10);
 
                   return response()->json([
                       'data' =>  ShipmentResource::collection($Shipment),
