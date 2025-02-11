@@ -17,13 +17,16 @@ class InvoiceController extends Controller
     {
         $this->authorize('manage_users');
 
-        $Invoices = Invoice::paginate(10);
+        // $Invoices = Invoice::paginate(10);
+        $Invoices = Invoice::orderBy('created_at', 'desc')->paginate(10);
         return response()->json([
             'data' => $Invoices->map(function ($invoice) {
                 return [
                     'id' => $invoice->id,
                     'customerName' => $invoice->customerName,
+                    'invoiceAfterDiscount' =>$invoice->invoiceAfterDiscount,
                     'creationDate' => $invoice->creationDate,
+
                 ];
             }),
               'pagination' => [
