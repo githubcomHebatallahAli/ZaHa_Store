@@ -48,7 +48,8 @@ class DeptController extends Controller
     $this->authorize('manage_users');
 
     $depts = Dept::orderBy('created_at', 'desc')->paginate(10);
-    $paidAmount = Dept::sum('paidAmount');
+    // $paidAmount = Dept::sum('paidAmount');
+    $paidAmount = Dept::where('status', 'pending')->sum('paidAmount');
     $remainingAmount = Dept::sum('remainingAmount');
 
     return response()->json([
@@ -196,7 +197,7 @@ public function updatePaidAmount(UpdatePaidAmountRequest $request, $id)
         'totalDepetPrice' => number_format($Dept->totalDepetPrice, 2, '.', ''),
         'discount' => number_format($Dept->discount, 2, '.', ''),
         'depetAfterDiscount' => number_format($Dept->depetAfterDiscount, 2, '.', ''),
-        'paidAmount' => number_format($Dept->paidAmount, 2, '.', ''), // ✅ تنسيق المبلغ المدفوع
+        'paidAmount' => number_format($Dept->paidAmount, 2, '.', ''),
         'remainingAmount' => number_format($remainingAmount, 2, '.', ''),
     ]);
 }
