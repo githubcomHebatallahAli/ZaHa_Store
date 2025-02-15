@@ -61,7 +61,7 @@ public function addToCart(CartProductRequest $request)
     // إضافة المنتج إلى السلة
     $cart->products()->syncWithoutDetaching([
         $request->product_id => [
-            'quantity' => DB::raw('quantity + ' . $request->quantity)
+            'quantity' => $request->quantity
         ]
     ]);
 
