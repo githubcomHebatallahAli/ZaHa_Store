@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\CartRequest;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\User\CartResource;
 use App\Http\Requests\Admin\AdminCartRequest;
+use App\Http\Resources\Admin\AdminCartResource;
 
 class CartController extends Controller
 {
@@ -20,7 +24,7 @@ class CartController extends Controller
                       'message' => "Show All Cart  With Products."
                   ]);
     }
-    public function showAllCat()
+    public function showAllCart()
     {
         $this->authorize('manage_users');
 

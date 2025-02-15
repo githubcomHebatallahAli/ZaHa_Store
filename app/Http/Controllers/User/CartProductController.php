@@ -12,8 +12,39 @@ use App\Http\Requests\User\CartProductRequest;
 
 class CartProductController extends Controller
 {
-    public function addToCart(CartProductRequest $request)
+//     public function addToCart(CartProductRequest $request)
+// {
+//     if (auth()->guard('admin')->check()) {
+//         $cart = Cart::firstOrCreate([
+//             'user_id' => $request->user_id ?? null,
+//             'admin_id' => auth()->guard('admin')->id(),
+//             'status' => 'active',
+//         ]);
+//     } else {
+//         $cart = Cart::firstOrCreate([
+//             'user_id' => auth()->guard('api')->id(),
+//             'status' => 'active'
+//         ]);
+//     }
+
+//     foreach ($request->products as $product) {
+//         $cart->products()->syncWithoutDetaching([
+//             $product['product_id'] => [
+//                 'quantity' => DB::raw('quantity + ' . $product['quantity'])
+//             ]
+//         ]);
+//     }
+
+//     return response()->json([
+//         'message' => 'تمت إضافة المنتجات إلى السلة بنجاح',
+//         'cart' => new CartResource($cart->load('products.category', 'user', 'admin')) // تضمين admin في الـ load
+//     ]);
+// }
+
+
+public function addToCart(CartProductRequest $request)
 {
+    // إنشاء أو استرجاع السلة
     if (auth()->guard('admin')->check()) {
         $cart = Cart::firstOrCreate([
             'user_id' => $request->user_id ?? null,
@@ -27,18 +58,31 @@ class CartProductController extends Controller
         ]);
     }
 
-    foreach ($request->products as $product) {
-        $cart->products()->syncWithoutDetaching([
-            $product['product_id'] => [
-                'quantity' => DB::raw('quantity + ' . $product['quantity'])
-            ]
-        ]);
-    }
-
-    return response()->json([
-        'message' => 'تمت إضافة المنتجات إلى السلة بنجاح',
-        'cart' => new CartResource($cart->load('products.category', 'user', 'admin')) // تضمين admin في الـ load
+    // إضافة المنتج إلى السلة
+    $cart->products()->syncWithoutDetaching([
+        $request->product_id => [
+            'quantity' => DB::raw('quantity + ' . $request->quantity)
+        ]
     ]);
+
+    // إرسال طلب بعد إضافة المنتج
+    $response = $this->sendRequestAfterProductAdded($request->only(['product_id', 'quantity']));
+
+    // إرجاع الرد
+    return response()->json([
+        'message' => 'تمت إضافة المنتج إلى السلة بنجاح',
+        'cart' => new CartResource($cart->load('products.category', 'user', 'admin')),
+        'response' => $response
+    ]);
+}
+
+private function sendRequestAfterProductAdded($product)
+{
+    return [
+        'product_id' => $product['product_id'],
+        'quantity' => $product['quantity'],
+        'message' => 'تم إرسال الطلب بنجاح بعد إضافة المنتج'
+    ];
 }
 
 
