@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\CartResource;
+use App\Http\Resources\User\ShowCartResource;
 use App\Http\Requests\User\CartProductRequest;
 
 
@@ -150,7 +151,7 @@ public function showCart($id)
         ], 404);
     }
 
-    return new CartResource($cart);
+    return new ShowCartResource($cart);
 }
 
 
