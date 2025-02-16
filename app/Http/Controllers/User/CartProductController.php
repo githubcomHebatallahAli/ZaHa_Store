@@ -200,6 +200,8 @@ public function updateCartItem(CartProductRequest $request, $id)
     ]);
 }
 
+
+
 // public function removeCartItem(Request $request)
 // {
 //     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
@@ -210,53 +212,46 @@ public function updateCartItem(CartProductRequest $request, $id)
 //         ], 401);
 //     }
 
-//     $cartId = $request->input('cart_id');
 //     $productId = $request->input('product_id');
 
-//     if (!$cartId || !$productId) {
+//     if (!$productId) {
 //         return response()->json([
-//             'message' => 'cart_id and product_id are required'
+//             'message' => 'product_id is required'
 //         ], 422);
 //     }
 
-//     $cartProduct = CartProduct::where('cart_id', $cartId)
+//     // البحث عن سلة المستخدم
+//     $cart = Cart::where('user_id', $currentUser->id)
+//                 ->orWhere('admin_id', $currentUser->id)
+//                 ->first();
+
+//     if (!$cart) {
+//         return response()->json([
+//             'message' => 'Cart not found'
+//         ], 404);
+//     }
+
+//     // البحث عن المنتج داخل السلة
+//     $cartProduct = CartProduct::where('cart_id', $cart->id)
 //                               ->where('product_id', $productId)
 //                               ->first();
 
 //     if (!$cartProduct) {
 //         return response()->json([
-//             'message' => 'Cart product not found'
+//             'message' => 'Product not found in cart'
 //         ], 404);
 //     }
 
-//     $cart = Cart::where('id', $cartProduct->cart_id)
-//                 // ->where('status', 'active')
-//                 ->first();
-
-//     if (!$cart) {
-//         return response()->json([
-//             'message' => 'Cart not found or unauthorized access'
-//         ], 404);
-//     }
-
-//     if ($currentUser->role_id != 1) {
-
-//         if ($cart->user_id != $currentUser->id && $cart->admin_id != $currentUser->id) {
-//             return response()->json([
-//                 'message' => 'Unauthorized to remove item from this cart'
-//             ], 403);
-//         }
-//     }
-
+//     // حذف المنتج من السلة
 //     $cartProduct->delete();
 
 //     return response()->json([
 //         'message' => 'تم حذف المنتج من السلة بنجاح',
-//         'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
+//         'cart' => new ShowCartResource($cart)
 //     ]);
 // }
 
-public function removeCartItem(Request $request)
+public function removeCartItem($id)
 {
     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
 
@@ -266,15 +261,7 @@ public function removeCartItem(Request $request)
         ], 401);
     }
 
-    $productId = $request->input('product_id');
-
-    if (!$productId) {
-        return response()->json([
-            'message' => 'product_id is required'
-        ], 422);
-    }
-
-    // البحث عن سلة المستخدم
+    // البحث عن السلة الخاصة بالمستخدم الحالي
     $cart = Cart::where('user_id', $currentUser->id)
                 ->orWhere('admin_id', $currentUser->id)
                 ->first();
@@ -287,7 +274,7 @@ public function removeCartItem(Request $request)
 
     // البحث عن المنتج داخل السلة
     $cartProduct = CartProduct::where('cart_id', $cart->id)
-                              ->where('product_id', $productId)
+                              ->where('product_id', $id)
                               ->first();
 
     if (!$cartProduct) {
@@ -301,9 +288,9 @@ public function removeCartItem(Request $request)
 
     return response()->json([
         'message' => 'تم حذف المنتج من السلة بنجاح',
-        'cart' => new ShowCartResource($cart)
     ]);
 }
+
 
 
 

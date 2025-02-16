@@ -12,5 +12,5 @@ Route::controller(CartProductController::class)->group(
         Route::post('add/to/cart', 'addToCart');
         Route::get('edit/cart/{id}', 'showCart');
         Route::put('update/cart/item/{id}', 'updateCartItem');
-        Route::delete('remove/cart/item', 'removeCartItem');
+        Route::delete('remove/cart/item/{id}', 'removeCartItem');
     });
