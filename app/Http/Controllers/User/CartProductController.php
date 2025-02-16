@@ -200,6 +200,62 @@ public function updateCartItem(CartProductRequest $request, $id)
     ]);
 }
 
+// public function removeCartItem(Request $request)
+// {
+//     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
+
+//     if (!$currentUser) {
+//         return response()->json([
+//             'message' => 'Unauthorized User'
+//         ], 401);
+//     }
+
+//     $cartId = $request->input('cart_id');
+//     $productId = $request->input('product_id');
+
+//     if (!$cartId || !$productId) {
+//         return response()->json([
+//             'message' => 'cart_id and product_id are required'
+//         ], 422);
+//     }
+
+//     $cartProduct = CartProduct::where('cart_id', $cartId)
+//                               ->where('product_id', $productId)
+//                               ->first();
+
+//     if (!$cartProduct) {
+//         return response()->json([
+//             'message' => 'Cart product not found'
+//         ], 404);
+//     }
+
+//     $cart = Cart::where('id', $cartProduct->cart_id)
+//                 // ->where('status', 'active')
+//                 ->first();
+
+//     if (!$cart) {
+//         return response()->json([
+//             'message' => 'Cart not found or unauthorized access'
+//         ], 404);
+//     }
+
+//     if ($currentUser->role_id != 1) {
+
+//         if ($cart->user_id != $currentUser->id && $cart->admin_id != $currentUser->id) {
+//             return response()->json([
+//                 'message' => 'Unauthorized to remove item from this cart'
+//             ], 403);
+//         }
+//     }
+
+//     $cartProduct->delete();
+
+//     return response()->json([
+//         'message' => 'تم حذف المنتج من السلة بنجاح',
+//         'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
+//     ]);
+// }
+
 public function removeCartItem(Request $request)
 {
     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
@@ -210,54 +266,32 @@ public function removeCartItem(Request $request)
         ], 401);
     }
 
-    // التحقق من وجود cart_id و product_id في الطلب
-    $cartId = $request->input('cart_id');
     $productId = $request->input('product_id');
 
-    if (!$cartId || !$productId) {
+    if (!$productId) {
         return response()->json([
-            'message' => 'cart_id and product_id are required'
+            'message' => 'product_id is required'
         ], 422);
     }
 
-    // البحث عن المنتج داخل السلة
-    $cartProduct = CartProduct::where('cart_id', $cartId)
-                              ->where('product_id', $productId)
-                              ->first();
+    
+    $cartProduct = CartProduct::whereHas('cart', function ($query) use ($currentUser) {
+        $query->where('user_id', $currentUser->id)
+              ->orWhere('admin_id', $currentUser->id);
+    })->where('product_id', $productId)->first();
 
     if (!$cartProduct) {
         return response()->json([
-            'message' => 'Cart product not found'
+            'message' => 'Cart product not found or unauthorized access'
         ], 404);
-    }
-
-    // جلب بيانات السلة الخاصة بالمنتج
-    $cart = Cart::where('id', $cartProduct->cart_id)
-                ->where('status', 'active')
-                ->first();
-
-    if (!$cart) {
-        return response()->json([
-            'message' => 'Cart not found or unauthorized access'
-        ], 404);
-    }
-
-    // السماح للأدمن بحذف أي منتج من أي سلة
-    if ($currentUser->role_id != 1) {
-        // السماح فقط لصاحب السلة بحذف المنتج
-        if ($cart->user_id != $currentUser->id && $cart->admin_id != $currentUser->id) {
-            return response()->json([
-                'message' => 'Unauthorized to remove item from this cart'
-            ], 403);
-        }
     }
 
     $cartProduct->delete();
 
     return response()->json([
         'message' => 'تم حذف المنتج من السلة بنجاح',
-        'cart' => new CartResource($cart->load('products.category', 'user', 'admin'))
     ]);
 }
+
 
 }
