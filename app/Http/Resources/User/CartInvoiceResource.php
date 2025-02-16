@@ -20,7 +20,6 @@ class CartInvoiceResource extends JsonResource
             'discount'=> $this->discount,
             'shippingCost' => $this-> shippingCost,
             'finalPrice' => $this-> finalPrice,
-            'status' => $this->status,
             'user' => $this->user ? [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

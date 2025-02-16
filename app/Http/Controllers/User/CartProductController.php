@@ -49,12 +49,12 @@ public function addToCart(CartProductRequest $request)
         $cart = Cart::firstOrCreate([
             'user_id' => $request->user_id ?? null,
             'admin_id' => auth()->guard('admin')->id(),
-            'status' => 'active',
+            // 'status' => 'active',
         ]);
     } else {
         $cart = Cart::firstOrCreate([
             'user_id' => auth()->guard('api')->id(),
-            'status' => 'active'
+            // 'status' => 'active'
         ]);
     }
 
@@ -86,9 +86,41 @@ private function sendRequestAfterProductAdded($product)
 }
 
 
+// public function showCart($id)
+// {
+
+//     $currentUser = auth()->guard('api')->user();
+//     if (!$currentUser) {
+//         $currentUser = auth()->guard('admin')->user();
+//     }
+
+//     if (!$currentUser) {
+//         return response()->json([
+//             'message' => 'Unauthorized User'
+//         ], 401);
+//     }
+
+//     if ($currentUser->role_id == 1) {
+//         $cart = Cart::find($id);
+//     }
+//     else {
+//         $cart = Cart::where('id', $id)
+//                     ->where('user_id', $currentUser->id)
+//                     // ->where('status', 'active')
+//                     ->first();
+//     }
+
+//     if (!$cart) {
+//         return response()->json([
+//             'message' => 'Cart not found or unauthorized access'
+//         ], 404);
+//     }
+
+//     return new CartResource($cart);
+// }
+
 public function showCart($id)
 {
-
     $currentUser = auth()->guard('api')->user();
     if (!$currentUser) {
         $currentUser = auth()->guard('admin')->user();
@@ -100,15 +132,17 @@ public function showCart($id)
         ], 401);
     }
 
-    if ($currentUser->role_id == 1) {
-        $cart = Cart::find($id);
+    // تحقق مما إذا كان معرف المستخدم يتطابق مع المعرف الحالي
+    if ($currentUser->id != $id) {
+        return response()->json([
+            'message' => 'Unauthorized access to another user\'s cart'
+        ], 403);
     }
-    else {
-        $cart = Cart::where('id', $id)
-                    ->where('user_id', $currentUser->id)
-                    ->where('status', 'active')
-                    ->first();
-    }
+
+    // استرجاع السلة الخاصة بالمستخدم
+    $cart = Cart::where('user_id', $id)
+                // ->where('status', 'active') // إذا كنت ترغب في التحقق من الحالة
+                ->first();
 
     if (!$cart) {
         return response()->json([
@@ -118,6 +152,7 @@ public function showCart($id)
 
     return new CartResource($cart);
 }
+
 
 public function updateCartItem(CartProductRequest $request, $id)
 {
@@ -133,7 +168,7 @@ public function updateCartItem(CartProductRequest $request, $id)
     }
 
     if ($currentUser->role_id == 1) {
-        $cart = Cart::where('id', $id)->where('status', 'active')->first();
+        $cart = Cart::where('id', $id)->first();
     } else {
 
         $cart = Cart::where('id', $id)
@@ -141,7 +176,7 @@ public function updateCartItem(CartProductRequest $request, $id)
                         $query->where('user_id', $currentUser->id)
                               ->orWhere('admin_id', $currentUser->id);
                     })
-                    ->where('status', 'active')
+                    // ->where('status', 'active')
                     ->first();
     }
 
