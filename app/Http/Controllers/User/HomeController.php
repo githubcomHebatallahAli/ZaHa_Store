@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Newproduct;
 use App\Models\Premproduct;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\ProductResource;
 use App\Http\Resources\User\ProductUserResource;
 use App\Http\Resources\User\CategoryWithProductsResource;
 
@@ -47,6 +46,7 @@ class HomeController extends Controller
             'data' => $Premproducts->map(function ($Premproduct) {
                 return [
                     'id' => $Premproduct->id,
+                    'product_id'=>$Premproduct->product->id,
                     'image' => $Premproduct->product->image,
                     'name' => $Premproduct->product->name,
                     'priceBeforeDiscount'=>$Premproduct->product->priceBeforeDiscount,
@@ -65,6 +65,7 @@ class HomeController extends Controller
             'data' => $Newproducts->map(function ($Newproduct) {
                 return [
                     'id' => $Newproduct->id,
+                    'product_id'=>$Newproduct->product->id,
                     'image' => $Newproduct->product->image,
                     'name' => $Newproduct->product->name,
                     'priceBeforeDiscount'=>$Newproduct->product->priceBeforeDiscount,
@@ -132,7 +133,7 @@ $category = Category::where('status', 'view')->with('products')
                 'priceBeforeDiscount'=>$Product->priceBeforeDiscount,
                 'discount'=>$Product->discount,
                 'sellingPrice' => $Product->sellingPrice,
-                'category' => [ 
+                'category' => [
                     'id' => $Product->category->id,
                     'name' => $Product->category->name,
                 ]
