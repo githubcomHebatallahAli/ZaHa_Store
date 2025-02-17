@@ -288,6 +288,8 @@ public function removeCartItem($id)
 
     return response()->json([
         'message' => 'تم حذف المنتج من السلة بنجاح',
+        'cart' => new ShowCartResource($cart)
+
     ]);
 }
 
