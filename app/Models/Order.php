@@ -10,6 +10,8 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
+        'user_id',
+        'cart_id',
         'name',
         'phoNum',
         'address',
@@ -25,12 +27,18 @@ class Order extends Model
     ];
 
 
-    public function products()
-    {
-        return $this->belongsToMany(Product::class, 'order_products')
-                    ->withPivot('quantity', 'total','profit')
-                    ->withTimestamps();
-    }
+    // public function products()
+    // {
+    //     return $this->belongsToMany(Product::class, 'order_products')
+    //                 ->withPivot('quantity', 'total','profit')
+    //                 ->withTimestamps();
+    // }
+
+    public function cart()
+{
+    return $this->belongsTo(Cart::class);
+}
+
 
     protected static function booted()
     {
