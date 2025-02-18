@@ -28,7 +28,7 @@ class CartInvoiceController extends Controller
                     $query->where('user_id', $currentUser->id)
                           ->orWhere('admin_id', $currentUser->id);
                 })
-                ->where('status', 'active')
+                // ->where('status', 'active')
                 ->first();
 
     if (!$cart) {
@@ -188,7 +188,7 @@ public function updateProductQuantity(Request $request, $cartId, $productId)
                     $query->where('user_id', $currentUser->id)
                           ->orWhere('admin_id', $currentUser->id);
                 })
-                ->where('status', 'active')
+                // ->where('status', 'active')
                 ->first();
 
     if (!$cart) {
@@ -249,7 +249,7 @@ public function removeProductFromCart(Request $request, $cartId, $productId)
                     $query->where('user_id', $currentUser->id)
                           ->orWhere('admin_id', $currentUser->id);
                 })
-                ->where('status', 'active')
+                // ->where('status', 'active')
                 ->first();
 
     if (!$cart) {
@@ -267,7 +267,6 @@ public function removeProductFromCart(Request $request, $cartId, $productId)
         ], 404);
     }
 
-    // حذف المنتج من الكارت
     $cart->products()->detach($productId);
 
     // إعادة حساب السعر الإجمالي للكارت

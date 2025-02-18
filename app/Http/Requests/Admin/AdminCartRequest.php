@@ -24,7 +24,7 @@ class AdminCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'=> 'nullable|in:active, completed, canceled',
+            // 'status'=> 'nullable|in:active, completed, canceled',
             'shippingCost'=>'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'code_id'=>'nullable|exists:codes,id'
         ];

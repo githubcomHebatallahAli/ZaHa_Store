@@ -45,7 +45,6 @@ class CartProductController extends Controller
 
 public function addToCart(CartProductRequest $request)
 {
-    // إنشاء أو استرجاع السلة
     if (auth()->guard('admin')->check()) {
         $cart = Cart::firstOrCreate([
             'user_id' => $request->user_id ?? null,
@@ -59,17 +58,14 @@ public function addToCart(CartProductRequest $request)
         ]);
     }
 
-    // إضافة المنتج إلى السلة
     $cart->products()->syncWithoutDetaching([
         $request->product_id => [
             'quantity' => $request->quantity
         ]
     ]);
 
-    // إرسال طلب بعد إضافة المنتج
     $response = $this->sendRequestAfterProductAdded($request->only(['product_id', 'quantity']));
 
-    // إرجاع الرد
     return response()->json([
         'message' => 'تمت إضافة المنتج إلى السلة بنجاح',
         'cart' => new CartResource($cart->load('products.category', 'user', 'admin')),
@@ -87,39 +83,6 @@ private function sendRequestAfterProductAdded($product)
 }
 
 
-// public function showCart($id)
-// {
-
-//     $currentUser = auth()->guard('api')->user();
-//     if (!$currentUser) {
-//         $currentUser = auth()->guard('admin')->user();
-//     }
-
-//     if (!$currentUser) {
-//         return response()->json([
-//             'message' => 'Unauthorized User'
-//         ], 401);
-//     }
-
-//     if ($currentUser->role_id == 1) {
-//         $cart = Cart::find($id);
-//     }
-//     else {
-//         $cart = Cart::where('id', $id)
-//                     ->where('user_id', $currentUser->id)
-//                     // ->where('status', 'active')
-//                     ->first();
-//     }
-
-//     if (!$cart) {
-//         return response()->json([
-//             'message' => 'Cart not found or unauthorized access'
-//         ], 404);
-//     }
-
-//     return new CartResource($cart);
-// }
-
 public function showCart($id)
 {
     $currentUser = auth()->guard('api')->user();
@@ -133,14 +96,12 @@ public function showCart($id)
         ], 401);
     }
 
-    // تحقق مما إذا كان معرف المستخدم يتطابق مع المعرف الحالي
     if ($currentUser->id != $id) {
         return response()->json([
             'message' => 'Unauthorized access to another user\'s cart'
         ], 403);
     }
 
-    // استرجاع السلة الخاصة بالمستخدم
     $cart = Cart::where('user_id', $id)
                 // ->where('status', 'active') // إذا كنت ترغب في التحقق من الحالة
                 ->first();
@@ -188,7 +149,6 @@ public function updateCartItem(CartProductRequest $request, $id)
     }
 
     foreach ($request->products as $product) {
-        // تحديث الكمية إذا كان المنتج موجودًا، وإضافته إذا لم يكن موجودًا
         $cart->products()->syncWithoutDetaching([
             $product['product_id'] => ['quantity' => $product['quantity']]
         ]);
@@ -201,56 +161,6 @@ public function updateCartItem(CartProductRequest $request, $id)
 }
 
 
-
-// public function removeCartItem(Request $request)
-// {
-//     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
-
-//     if (!$currentUser) {
-//         return response()->json([
-//             'message' => 'Unauthorized User'
-//         ], 401);
-//     }
-
-//     $productId = $request->input('product_id');
-
-//     if (!$productId) {
-//         return response()->json([
-//             'message' => 'product_id is required'
-//         ], 422);
-//     }
-
-//     // البحث عن سلة المستخدم
-//     $cart = Cart::where('user_id', $currentUser->id)
-//                 ->orWhere('admin_id', $currentUser->id)
-//                 ->first();
-
-//     if (!$cart) {
-//         return response()->json([
-//             'message' => 'Cart not found'
-//         ], 404);
-//     }
-
-//     // البحث عن المنتج داخل السلة
-//     $cartProduct = CartProduct::where('cart_id', $cart->id)
-//                               ->where('product_id', $productId)
-//                               ->first();
-
-//     if (!$cartProduct) {
-//         return response()->json([
-//             'message' => 'Product not found in cart'
-//         ], 404);
-//     }
-
-//     // حذف المنتج من السلة
-//     $cartProduct->delete();
-
-//     return response()->json([
-//         'message' => 'تم حذف المنتج من السلة بنجاح',
-//         'cart' => new ShowCartResource($cart)
-//     ]);
-// }
-
 public function removeCartItem($id)
 {
     $currentUser = auth()->guard('api')->user() ?? auth()->guard('admin')->user();
@@ -261,7 +171,6 @@ public function removeCartItem($id)
         ], 401);
     }
 
-    // البحث عن السلة الخاصة بالمستخدم الحالي
     $cart = Cart::where('user_id', $currentUser->id)
                 ->orWhere('admin_id', $currentUser->id)
                 ->first();
@@ -270,9 +179,7 @@ public function removeCartItem($id)
         return response()->json([
             'message' => 'Cart not found'
         ], 404);
-    }
 
-    // البحث عن المنتج داخل السلة
     $cartProduct = CartProduct::where('cart_id', $cart->id)
                               ->where('product_id', $id)
                               ->first();
@@ -283,7 +190,6 @@ public function removeCartItem($id)
         ], 404);
     }
 
-    // حذف المنتج من السلة
     $cartProduct->delete();
 
     return response()->json([

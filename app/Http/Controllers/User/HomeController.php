@@ -104,6 +104,7 @@ $category = Category::where('status', 'view')->with('products')
                 return  [
                 'id' => $Code->id,
                 'code' => $Code->code,
+                'type' => $Code->type,
                 'discount' => $Code->type === 'percentage'
                     ? number_format($Code->discount, 2) . '%'
                     : ($Code->type === 'pounds'
