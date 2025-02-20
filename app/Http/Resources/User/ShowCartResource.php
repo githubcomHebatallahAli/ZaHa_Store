@@ -29,6 +29,7 @@ class ShowCartResource extends JsonResource
                     'id' => $product->id,
                     'name' => $product->name,
                     'image' => $product->image,
+                    'sellingPrice' => $product->sellingPrice,
                     'quantity' => $product->pivot->quantity,
                 ];
             })->values(),
