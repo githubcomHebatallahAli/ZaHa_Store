@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            // $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignId('cart_id')->nullable()->constrained('carts')->cascadeOnDelete();
             $table->string('name');
             $table->string('phoNum');
             $table->string('address');
             $table->string('details')->nullable();
-            $table->unsignedBigInteger('orderProductCount')->default(0);
+            // $table->unsignedBigInteger('orderProductCount')->default(0);
             // $table->decimal('totalPrice', 15, 2)->default(0);
             // $table->decimal('discount', 10, 2)->nullable();
             // $table->decimal('shippingCost', 10, 2)->nullable();

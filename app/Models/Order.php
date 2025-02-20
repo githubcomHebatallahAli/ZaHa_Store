@@ -10,18 +10,17 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'user_id',
         'cart_id',
         'name',
         'phoNum',
         'address',
         'details',
-        'orderProductCount',
-        'totalPrice',
-        'discount',
-        'shippingCost',
-        'finalPrice',
-        'profit',
+        // 'orderProductCount',
+        // 'totalPrice',
+        // 'discount',
+        // 'shippingCost',
+        // 'finalPrice',
+        // 'profit',
         'status',
         'creationDate'
     ];

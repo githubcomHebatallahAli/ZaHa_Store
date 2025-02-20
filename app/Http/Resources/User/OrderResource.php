@@ -16,15 +16,15 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->user ? [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-            ] : null,  // تأكد من وجود الـ user قبل الوصول إليه
-            'admin' => $this->admin ? [
-                'id' => $this->admin->id,
-                'name' => $this->admin->name,
-            ] : null,
-            
+            'name' => $this -> name,
+            'phoNum' => $this -> phoNum,
+            'address' => $this -> address,
+            'details' => $this -> details,
+            'status' => $this -> status,
+            'creationDate' => $this -> creationDate,
+            'cart' => new CartInvoiceResource($this->cart),
+
+
         ];
     }
 }

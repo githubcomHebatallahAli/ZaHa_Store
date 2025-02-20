@@ -179,6 +179,7 @@ public function removeCartItem($id)
         return response()->json([
             'message' => 'Cart not found'
         ], 404);
+    } 
 
     $cartProduct = CartProduct::where('cart_id', $cart->id)
                               ->where('product_id', $id)
@@ -195,12 +196,7 @@ public function removeCartItem($id)
     return response()->json([
         'message' => 'تم حذف المنتج من السلة بنجاح',
         'cart' => new ShowCartResource($cart)
-
     ]);
 }
 
-
-
-
-}
 }

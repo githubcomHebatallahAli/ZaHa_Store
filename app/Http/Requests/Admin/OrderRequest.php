@@ -24,15 +24,18 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'cart_id' => 'required|exists:carts,id',
             'name'=> 'required|string',
             'phoNum'=> 'required|string',
             'address'=> 'required|string',
             'details'=> 'nullable|string',
             'discount'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'shippingCost'=> 'required|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'products' => 'required|array',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
+            'shippingCost'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            'status'=> 'nullable|in:pending,approve,completed,canceled',
+            'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
+            // 'products' => 'required|array',
+            // 'products.*.id' => 'required|exists:products,id',
+            // 'products.*.quantity' => 'required|integer|min:1',
         ];
     }
     public function failedValidation(Validator $validator)
