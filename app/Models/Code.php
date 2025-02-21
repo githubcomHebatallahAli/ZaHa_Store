@@ -21,4 +21,9 @@ class Code extends Model
     return $this->hasMany(Cart::class, 'code_id');
 }
 
+public function orders()
+{
+    return $this->hasMany(Order::class, 'code_id');
+}
+
 }

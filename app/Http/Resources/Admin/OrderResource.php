@@ -21,9 +21,9 @@ class OrderResource extends JsonResource
             'address' => $this -> address,
             'details' => $this -> details,
             'status' => $this -> status,
-            'orderProductCount' => $this -> orderProductCount,
+            // 'orderProductCount' => $this -> orderProductCount,
             'creationDate' => $this -> creationDate,
-            'products' => $this->products->map(function ($product) {
+            'products' => $this->cart ? $this->cart->products->map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -33,7 +33,7 @@ class OrderResource extends JsonResource
                     'total' => $product->pivot->total,
                     // 'profit' => $product->pivot->profit
                 ];
-            }),
+            })->toArray() : [],
         ];
     }
 }

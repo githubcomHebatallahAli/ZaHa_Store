@@ -25,12 +25,13 @@ class OrderRequest extends FormRequest
     {
         return [
             'cart_id' => 'required|exists:carts,id',
+            'code'=>'nullable|exists:codes,code',
             'name'=> 'required|string',
             'phoNum'=> 'required|string',
             'address'=> 'required|string',
             'details'=> 'nullable|string',
-            'discount'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'shippingCost'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            // 'discount'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
+            // 'shippingCost'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             'status'=> 'nullable|in:pending,approve,completed,canceled',
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
             // 'products' => 'required|array',

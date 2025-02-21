@@ -74,12 +74,12 @@ class Product extends Model
         return $this->hasMany(Premproduct::class);
     }
 
-    public function orders()
-    {
-        return $this->belongsToMany(Order::class, 'order_products')
-                    ->withPivot('quantity', 'total','profit')
-                    ->withTimestamps();
-    }
+    // public function orders()
+    // {
+    //     return $this->belongsToMany(Order::class, 'order_products')
+    //                 ->withPivot('quantity', 'total','profit')
+    //                 ->withTimestamps();
+    // }
 
     public function carts()
     {
