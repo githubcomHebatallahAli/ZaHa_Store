@@ -32,7 +32,7 @@ class OrderRequest extends FormRequest
             'details'=> 'nullable|string',
             // 'discount'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
             // 'shippingCost'=> 'nullable|numeric|regex:/^\d{1,5}(\.\d{1,2})?$/',
-            'status'=> 'nullable|in:pending,approve,completed,canceled',
+            'status'=> 'nullable|in:pending,approve,compeleted,canceled',
             'creationDate'=> 'nullable|date_format:Y-m-d H:i:s',
             // 'products' => 'required|array',
             // 'products.*.id' => 'required|exists:products,id',

@@ -50,4 +50,62 @@ class OrderController extends Controller
         'order' => new OrderResource($Order),
     ]);
 }
+
+public function approve(string $id)
+{
+    $this->authorize('manage_users');
+    $Order = Order::findOrFail($id);
+
+    if (!$Order) {
+        return response()->json([
+            'message' => "Order not found."
+        ], 404);
+    }
+
+    $Order->update(['status' => 'approve']);
+
+    return response()->json([
+        'data' => new OrderResource($Order),
+        'message' => 'Order has been approved.'
+    ]);
+}
+public function compeleted(string $id)
+{
+    $this->authorize('manage_users');
+    $Order = Order::findOrFail($id);
+
+    if (!$Order) {
+        return response()->json([
+            'message' => "Order not found."
+        ], 404);
+    }
+
+    $Order->update(['status' => 'compeleted']);
+
+    return response()->json([
+        'data' => new OrderResource($Order),
+        'message' => 'Order has been compeleted.'
+    ]);
+}
+
+public function canceled(string $id)
+{
+    $this->authorize('manage_users');
+    $Order = Order::findOrFail($id);
+
+    if (!$Order) {
+        return response()->json([
+            'message' => "Order not found."
+        ], 404);
+    }
+
+    $Order->update(['status' => 'canceled']);
+
+    return response()->json([
+        'data' => new OrderResource($Order),
+        'message' => 'Order has been canceled.'
+    ]);
+}
+
+
 }

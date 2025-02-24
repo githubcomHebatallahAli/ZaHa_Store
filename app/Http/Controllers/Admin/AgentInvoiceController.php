@@ -343,25 +343,6 @@ return response()->json([
     ]);
 }
 
-// public function delivery(string $id)
-// {
-//     $this->authorize('manage_users');
-//     $AgentInvoice =Agentinvoice::findOrFail($id);
-
-//     if (!$AgentInvoice) {
-//      return response()->json([
-//          'message' => "AgentInvoice not found."
-//      ], 404);
-//  }
-
-//     $AgentInvoice->update(['status' => 'delivery']);
-
-//     return response()->json([
-//         'data' => new AgentInvoiceResource($AgentInvoice),
-//         'message' => 'AgentInvoice has been delivery.'
-//     ]);
-// }
-
 public function delivery(string $id)
 {
     $this->authorize('manage_users');
