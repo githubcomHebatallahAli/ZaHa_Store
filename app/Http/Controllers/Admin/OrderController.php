@@ -107,5 +107,22 @@ public function canceled(string $id)
     ]);
 }
 
+public function edit(string $id)
+{
+    $this->authorize('manage_users');
+$Order = Order::with('cart')->find($id);
+
+    if (!$Order) {
+        return response()->json([
+            'message' => "Order not found."
+        ], 404);
+    }
+
+    return response()->json([
+        'data' => new OrderResource($Order),
+        'message' => "Edit Order With Cart By ID Successfully."
+    ]);
+}
+
 
 }

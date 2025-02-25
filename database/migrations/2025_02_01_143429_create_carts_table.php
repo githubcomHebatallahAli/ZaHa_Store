@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('admin_id')->nullable()->constrained('admins')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            // $table->foreignId('code_id')->nullable()->constrained('codes')->onDelete('set null');
             $table->decimal('totalPrice', 15, 2)->default(0);
             $table->decimal('discount', 10, 2)->nullable();
             $table->decimal('shippingCost', 10, 2)->nullable();

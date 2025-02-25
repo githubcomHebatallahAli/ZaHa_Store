@@ -24,7 +24,7 @@ class OrderResource extends JsonResource
             'shippingCost' => $this->shippingCost,
             'discount' => $this->discount,
             'creationDate' => $this -> creationDate,
-            // 'cart' => new CartInvoiceResource($this->cart),
+            'cart' => new CartInvoiceResource($this->cart),
 
 
         ];

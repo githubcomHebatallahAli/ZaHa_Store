@@ -12,5 +12,6 @@ Route::controller(OrderController::class)->group(
         Route::patch('/approve/order/{id}', 'approve')->middleware('admin');
         Route::patch('/compeleted/order/{id}', 'compeleted')->middleware('admin');
         Route::patch('/canceled/order/{id}', 'canceled')->middleware('admin');
+        Route::get('/edit/order/{id}', 'edit')->middleware('admin');
 
     });
