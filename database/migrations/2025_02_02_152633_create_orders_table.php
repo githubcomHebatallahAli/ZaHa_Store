@@ -21,8 +21,10 @@ return new class extends Migration
             $table->string('address');
             $table->string('details')->nullable();
             $table->enum('status', ['pending','approve','compeleted','canceled'])->default('pending')->nullable();
+            $table->decimal('totalPrice', 15, 2)->nullable();
             $table->decimal('shippingCost', 10, 2)->nullable()->default(0);
             $table->decimal('discount', 10, 2)->nullable()->default(0);
+            $table->decimal('finalPrice', 10, 2)->nullable();
             $table->timestamp('creationDate')->nullable();
             $table->softDeletes();
             $table->timestamps();

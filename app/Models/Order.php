@@ -15,10 +15,10 @@ class Order extends Model
         'phoNum',
         'address',
         'details',
-        // 'totalPrice',
+        'totalPrice',
         'discount',
         'shippingCost',
-        // 'finalPrice',
+        'finalPrice',
         'status',
         'creationDate'
     ];
